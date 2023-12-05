@@ -7,6 +7,7 @@ package Menu;
 import Pojos.Doctor;
 import Pojos.Patient;
 import Pojos.User;
+import static Utilities.UtilitiesRead.readDate;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -220,10 +221,10 @@ public class Menu {
 
         System.out.print("Date of birth [yyyy-mm-dd]: ");
         String birthdate = sc.next();
-        Date bdate;
+        LocalDate bdate;
         System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
         birthdate = sc.next();
-        bdate = Date.valueOf(birthdate);
+        bdate = readDate(birthdate);
         p.setDob(bdate);
 
         System.out.print("Email: ");

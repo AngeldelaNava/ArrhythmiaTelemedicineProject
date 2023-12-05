@@ -4,24 +4,27 @@
  */
 package Utilities;
 //import BITalino.*;
+
+import Pojos.*;
 import java.io.*;
 import java.net.Socket;
-import java.rmi.NotBoundException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import javax.bluetooth.RemoteDevice;
-import Pojos.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
 /**
  *
  * @author maria
  */
 public class Communication {
+
     public static Socket connectToServer() throws IOException {
         boolean connected = false;
-        Socket socket = null; 
+        Socket socket = null;
         do {
             socket = new Socket();
             try {
@@ -29,13 +32,13 @@ public class Communication {
                 InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
                 PrintWriter printWriter = new PrintWriter(outputStream, true);
-                BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));                
-                connected = socket.isConnected();  
+                BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));
+                connected = socket.isConnected();
             } catch (IOException ex) {
                 if (connected == false) {
                     System.out.println("Connection failed");
                 }
-                
+
             }
         } while (!connected);
 
@@ -70,7 +73,7 @@ public class Communication {
             line = line.replace("Patient", "");
             line = line.replace("}", "");
             String[] atribute = line.split(",");
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             for (int i = 0; i < atribute.length; i++) {
                 String[] data2 = atribute[i].split("=");
@@ -84,12 +87,9 @@ public class Communication {
                             p.setLastName(data2[j + 1]);
                             break;
                         case "dob":
-                            try {
-                            p.setDob(format.parse(data2[j + 1]));
-                        } catch (ParseException ex) {
-                            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        break;
+                            p.setDob(LocalDate.parse(data2[j + 1], formatter));
+                            //p.setDob((LocalDate) formatter.parse(data2[j + 1]));//cambiado a LocalDate
+                            break;
                         case "email":
                             p.setEmail(data2[j + 1]);
                             break;
@@ -174,12 +174,12 @@ public class Communication {
                             s.setEcg(ECG);
                             break;
                         case "startDate":
-                        try {
-                            s.setStartDate(format.parse(data2[j + 1]));
-                        } catch (ParseException ex) {
-                            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        break;
+                            try {
+                                s.setStartDate(format.parse(data2[j + 1]));
+                            } catch (ParseException ex) {
+                                Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            break;
                     }
                 }
             }
@@ -248,7 +248,7 @@ public class Communication {
             //Each time read a block of 10 samples to make the trials easier, but we plan to change it
             int block_size = 16;
 
-            // Start loop to calculate time to send signal TODO 
+            // Start loop to calculate time to send signal TODO
             for (int j = 0; j < 750; j++) {
                 frame = bitalino.read(block_size);
 
@@ -295,7 +295,7 @@ public class Communication {
         try {
             List<String> filenames = new ArrayList();
 
-            int size = Integer.parseInt(bf.readLine());  
+            int size = Integer.parseInt(bf.readLine());
             for (int i = 0; i < size; i++) {
                 filenames.add(bf.readLine());
             }

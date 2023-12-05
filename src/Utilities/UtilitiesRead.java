@@ -6,6 +6,9 @@
 package Utilities;
 
 import static java.lang.System.console;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -38,6 +41,18 @@ public class UtilitiesRead {
 
             } catch (Exception error) {
                 System.out.println("Error reading the String; please try again" + error);
+            }
+        }
+    }
+
+    public static LocalDate readDate(String birthdate) {
+        while (true) {
+            try {
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate dob = LocalDate.parse(birthdate, dtf);
+                return dob;
+            } catch (DateTimeException e) {
+                System.out.println("Incorrect date");
             }
         }
     }
