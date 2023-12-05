@@ -9,6 +9,9 @@ import Interfaces.DBManager;
 import Pojos.ECG;
 import Pojos.Patient;
 import static Pojos.Patient.formatDate;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -61,7 +64,8 @@ public class JDBCManager implements DBManager {
 
             String sq1 = "CREATE TABLE IF NOT EXISTS Patient " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL, " + " email   TEXT NOT NULL, "
-                    + " username  TEXT   NOT NULL, " + " password  BLOB   NOT NULL, " + " gender TEXT CHECK (gender = 'M' OR gender = 'F')) ";
+                    + " username  TEXT   NOT NULL, " + " password  BLOB   NOT NULL, "
+                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL) ";
             stmt.executeUpdate(sq1);
             sq1 = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
@@ -226,27 +230,102 @@ public class JDBCManager implements DBManager {
 
     @Override
     public void addECG(ECG ecg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "INSERT INTO ECG (ecg, patientId, date) VALUES (?, ?, ?)";
+            PreparedStatement prep = c.prepareStatement(sql);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(ecg.getEcg());
+            byte[] bytes = bos.toByteArray();
+            prep.setString(1, String.valueOf(ecg.getEcg()));//Revisar que esté bien
+            prep.setInt(2, ecg.getPatient_id());
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            prep.setString(3, ecg.getStartDate().format(dtf));
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public ECG findECG(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ECG ecg = null;
+        try {
+            String sql = "SELECT * FROM ECG WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                int patient_id = rs.getInt("patientId");
+                String ecgList = rs.getString("ecg");
+                String date = rs.getString("date");
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate startDate = LocalDate.parse(date, dtf);
+                ecg = new ECG(id, patient_id, startDate, ecgList);
+            }
+            rs.close();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ecg;
     }
 
     @Override
     public ArrayList<String> findECGByPatientId(int patient_id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<String> ecgs = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM ECG WHERE patient_id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, patient_id);
+            ResultSet rs = prep.executeQuery();
+            while (rs.next()) {
+                String ecgList = rs.getString("ecg");
+                ecgs.add(ecgList);
+            }
+            rs.close();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ecgs;
     }
 
     @Override
     public void deleteECG(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "DELETE FROM ECG WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void setECG(ECG ecg, int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "UPDATE ECG SET ecg = ?, patientId = ? WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(ecg.getEcg());
+            byte[] bytes = bos.toByteArray();
+            prep.setString(1, ecg.getEcg());//Revisar que esté bien
+            prep.setInt(2, ecg.getPatient_id());
+            prep.setInt(3, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
