@@ -39,10 +39,16 @@ public class Menu {
             int choice;
             while (true) {
                 try {
-                    System.out.println("Welcome.");
-                    System.out.println("1. Register");
-                    System.out.println("2. Login");
-                    System.out.println("0. Exit");
+                    System.out.println("                  ~~~~~~~~~Arrhythmia Menu~~~~~~~~~                   ");
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    System.out.println("@@                                                                  @@");
+                    System.out.println("@@                 Welcome.                                         @@");
+                    System.out.println("@@                 1. Register                                      @@");
+                    System.out.println("@@                 2. Login                                         @@");
+                    System.out.println("@@                 0. Exit                                          @@");
+                    System.out.println("@@                                                                  @@");
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    System.out.println("Realizado por Ángel De la Nava, Jaime Prats, Maria Rueda y Jaime Soler");
                     choice = sc.nextInt();
                     System.out.println(choice);
                     printWriter.println(choice); //se lo pasas al server
