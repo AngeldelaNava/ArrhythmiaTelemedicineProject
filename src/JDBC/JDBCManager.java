@@ -295,12 +295,36 @@ public class JDBCManager implements DBManager {
 
     @Override
     public void deleteECG(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "DELETE FROM ECG WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void setECG(ECG ecg, int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "UPDATE ECG SET ecg = ?, patientId = ? WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(ecg.getEcg());
+            byte[] bytes = bos.toByteArray();
+            prep.setString(1, ecg.getEcg());//Revisar que esté bien
+            prep.setInt(2, ecg.getPatient_id());
+            prep.setInt(3, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
