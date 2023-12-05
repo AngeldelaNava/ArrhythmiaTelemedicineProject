@@ -64,7 +64,8 @@ public class JDBCManager implements DBManager {
 
             String sq1 = "CREATE TABLE IF NOT EXISTS Patient " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL, " + " email   TEXT NOT NULL, "
-                    + " username  TEXT   NOT NULL, " + " password  BLOB   NOT NULL, " + " gender TEXT CHECK (gender = 'M' OR gender = 'F')) ";
+                    + " username  TEXT   NOT NULL, " + " password  BLOB   NOT NULL, "
+                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL) ";
             stmt.executeUpdate(sq1);
             sq1 = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
