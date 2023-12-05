@@ -8,8 +8,6 @@ package Utilities;
 import Pojos.*;
 import java.io.*;
 import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -155,7 +153,7 @@ public class Communication {
             line = line.replace("{", "");
             line = line.replace("Signal", "");
             String[] atribute = line.split(",");
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             for (int i = 0; i < atribute.length; i++) {
                 String[] data2 = atribute[i].split("=");
@@ -171,14 +169,14 @@ public class Communication {
                             for (int k = 0; k < separatedString.length; k++) {
                                 ECG.add(k, Integer.parseInt(separatedString[k]));
                             }
-                            s.setEcg(ECG);
+                            String ecg = "";
+                            for (int k = 0; k < separatedString.length; k++) {
+                                ecg += ECG.get(k).toString() + "; ";
+                            }
+                            s.setEcg(ecg);
                             break;
                         case "startDate":
-                            try {
-                                s.setStartDate(format.parse(data2[j + 1]));
-                            } catch (ParseException ex) {
-                                Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                            s.setStartDate(LocalDate.parse(data2[j + 1], formatter));
                             break;
                     }
                 }
