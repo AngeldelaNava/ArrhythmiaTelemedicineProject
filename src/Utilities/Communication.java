@@ -26,7 +26,7 @@ public class Communication {
         boolean connected = false;
         Socket socket = null;
         do {
-            socket = new Socket();
+
             try {
                 socket = new Socket("localhost", 9000);
                 InputStream inputStream = socket.getInputStream();
@@ -35,7 +35,7 @@ public class Communication {
                 BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));
                 connected = socket.isConnected();
             } catch (IOException ex) {
-                if (connected == false) {
+                if (!connected) {
                     System.out.println("Connection failed");
                 }
 
@@ -329,7 +329,7 @@ public class Communication {
     public static void exitFromServer(PrintWriter pw, BufferedReader br, InputStream inputStream, OutputStream outputStream, Socket socket) {
         pw.close();
         try {
-            br.close();
+            socket.close();
         } catch (IOException ex) {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -344,9 +344,10 @@ public class Communication {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            socket.close();
+            br.close();
         } catch (IOException ex) {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 }
