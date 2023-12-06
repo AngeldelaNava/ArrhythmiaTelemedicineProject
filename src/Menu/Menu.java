@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 public class Menu {
 
     public static InputStream console = (System.in);
+    //aqui tenemos que crear los managers
 
     public static void main(String[] args) throws Exception {
         try {
@@ -39,7 +40,7 @@ public class Menu {
             int choice;
             while (true) {
                 try {
-                    System.out.println("                  ~~~~~~~~~Arrhythmia Menu~~~~~~~~~                   ");
+                    System.out.println("                 ~~~~~~~Welcome to our Arrhythmia Menu~~~~~~~         ");
                     System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                     System.out.println("@@                                                                  @@");
                     System.out.println("@@                 Welcome.                                         @@");
@@ -84,6 +85,61 @@ public class Menu {
         }
     }
 
+    public static Patient createPatient(BufferedReader br, PrintWriter pw) {
+        Scanner sc = new Scanner(System.in);
+        Patient p = new Patient();
+
+        System.out.print("Name: ");
+        String name = sc.next();
+        p.setName(name);
+
+        System.out.print("LastName: ");
+        String lastName = sc.next();
+        p.setLastName(lastName);
+
+        System.out.print("Gender: ");
+        String gender = sc.next();
+        do {
+            if (gender.equalsIgnoreCase("male")) {
+                gender = "Male";
+            } else if (gender.equalsIgnoreCase("female")) {
+                gender = "Female";
+            } else {
+                System.out.print("Not a valid gender. Please introduce a gender (Male or Female): ");
+                gender = sc.next();
+            }
+        } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
+        p.setGender(gender);
+
+        System.out.print("Date of birth [yyyy-mm-dd]: ");
+        String birthdate = sc.next();
+        LocalDate bdate;
+        System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
+        birthdate = sc.next();
+        bdate = readDate(birthdate);
+        p.setDob(bdate);
+
+        System.out.print("Email: ");
+        String email = sc.next();
+        p.setEmail(email);
+
+        System.out.println("Let's proceed with the registration:");
+        Utilities.Communication.sendPatient(pw, p);
+        User user = new User();
+        System.out.print("Role: \n");
+        System.out.print("D: Doctor: \n");
+        System.out.print("P: Patient: \n");
+        String role = sc.next();
+        user.setRole(role);
+        System.out.print("Username: ");
+        String username = sc.next();
+        user.setUsername(username);
+        System.out.print("Password: ");
+        String password = sc.next();
+        user.setUsername(password);
+        return p;
+    }
+
     private static void login(Socket socket, InputStream inputStream, OutputStream outputStream, BufferedReader bf, PrintWriter pw) throws Exception {
         Scanner sc = new Scanner(System.in);
         User user = new User();
@@ -109,7 +165,6 @@ public class Menu {
 
     public static void patientMenu(Socket socket, InputStream inputStream, OutputStream outputStream, BufferedReader br, PrintWriter pw, int userId) throws Exception {
         Scanner sc = new Scanner(System.in);
-        String nextLine;
         int option = 0;
         Patient patient = Utilities.Communication.receivePatient(br);
         do {
@@ -197,61 +252,6 @@ public class Menu {
                     break;
             }
         } while (true);
-    }
-
-    public static Patient createPatient(BufferedReader br, PrintWriter pw) {
-        Scanner sc = new Scanner(System.in);
-        Patient p = new Patient();
-
-        System.out.print("Name: ");
-        String name = sc.next();
-        p.setName(name);
-
-        System.out.print("LastName: ");
-        String lastName = sc.next();
-        p.setLastName(lastName);
-
-        System.out.print("Gender: ");
-        String gender = sc.next();
-        do {
-            if (gender.equalsIgnoreCase("male")) {
-                gender = "Male";
-            } else if (gender.equalsIgnoreCase("female")) {
-                gender = "Female";
-            } else {
-                System.out.print("Not a valid gender. Please introduce a gender (Male or Female): ");
-                gender = sc.next();
-            }
-        } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
-        p.setGender(gender);
-
-        System.out.print("Date of birth [yyyy-mm-dd]: ");
-        String birthdate = sc.next();
-        LocalDate bdate;
-        System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
-        birthdate = sc.next();
-        bdate = readDate(birthdate);
-        p.setDob(bdate);
-
-        System.out.print("Email: ");
-        String email = sc.next();
-        p.setEmail(email);
-
-        System.out.println("Let's proceed with the registration:");
-        Utilities.Communication.sendPatient(pw, p);
-        User user = new User();
-        System.out.print("Role: \n");
-        System.out.print("D: Doctor: \n");
-        System.out.print("P: Patient: \n");
-        String role = sc.next();
-        user.setRole(role);
-        System.out.print("Username: ");
-        String username = sc.next();
-        user.setUsername(username);
-        System.out.print("Password: ");
-        String password = sc.next();
-        user.setUsername(password);
-        return p;
     }
 
     private static Patient selectPatient(BufferedReader br, PrintWriter pw) throws Exception {
