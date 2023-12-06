@@ -31,6 +31,7 @@ public class Menu {
 
     public static void main(String[] args) throws Exception {
         try {
+            //JDBCManager jdbcManager = new JDBCManager();
             Socket socket = Utilities.Communication.connectToServer(); //te devuelve un socket en el port 9000 y te verifica si se ha podido coonectar
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
