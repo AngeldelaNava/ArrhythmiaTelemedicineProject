@@ -27,8 +27,7 @@ public interface DBManager {
 
     public void addPatient(Patient p);
 
-    public Patient searchPatient(String username, String password);
-
+    //public Patient searchPatient(String username, String password);
     public boolean verifyUsername(String username);
 
     public boolean verifyPassword(String username, String passwordIntroduced);

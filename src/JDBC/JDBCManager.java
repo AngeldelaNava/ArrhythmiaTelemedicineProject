@@ -62,14 +62,21 @@ public class JDBCManager implements DBManager {
         try {
             Statement stmt = c.createStatement();
 
-            String sq1 = "CREATE TABLE IF NOT EXISTS Patient " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
-                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL, " + " email   TEXT NOT NULL, "
-                    + " username  TEXT   NOT NULL, " + " password  BLOB   NOT NULL, "
+            String sq1 = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
+                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " email TEXT NOT NULL,"
                     + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL) ";
             stmt.executeUpdate(sq1);
             sq1 = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
-                    + "patientId INTEGER REFERENCES Patient(id) ON UPDATE CASCADE ON DELETE CASCADE)";
+                    + " patientId INTEGER REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
+            stmt.executeUpdate(sq1);
+            sq1 = "CREATE TABLE IF NOT EXIST USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + " role TEXT CHECK (role = 'P' OR role = 'D'), " + "username TEXT NOT NULL,"
+                    + " password BLOB NOT NULL," + " role_id INTEGER NOT NULL)";
+            stmt.executeUpdate(sq1);
+            sq1 = "CREATE TABLE IF NOT EXIST DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + " name TEXT NOT NULL," + " lastname TEXT NOT NULL," + " email TEXT NOT NULL,"
+                    + " patient_id INTEGER REFERENCES PATIENT(id) ON UPDATE CASACDE ON DELETE CASCADE)";
             stmt.executeUpdate(sq1);
             stmt.close();
         } catch (SQLException e) {
@@ -85,19 +92,19 @@ public class JDBCManager implements DBManager {
     @Override
     public void addPatient(Patient p) {
         try {
-            String sql = "INSERT INTO patients (name, lastname, date, gender, email, username, password, MAC) VALUES (?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO patients (name, lastname, date, gender, MAC) VALUES (?,?,?,?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
             prep.setString(2, p.getLastName());
             prep.setString(3, formatDate(p.getDob()));
             prep.setString(4, p.getGender());
-            prep.setString(5, p.getEmail());
-            prep.setString(6, p.getUsername());
-            String password = p.getPassword();
+            //prep.setString(5, p.getEmail());
+            //prep.setString(6, p.getUsername());
+            //String password = p.getPassword();
             MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(password.getBytes());
-            byte[] hash = md.digest();
-            prep.setBytes(6, hash);
+            //md.update(password.getBytes());
+            //byte[] hash = md.digest();
+            //prep.setBytes(6, hash);
             prep.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -106,7 +113,7 @@ public class JDBCManager implements DBManager {
         }
     }
 
-    @Override
+    /*@Override
     public Patient searchPatient(String username, String password) {
         Patient p = null;
         try {
@@ -137,8 +144,7 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return p;
-    }
-
+    }*/
     @Override
     public boolean verifyUsername(String username) {
         String sql = "SELECT username FROM patient WHERE username = ?";
@@ -189,11 +195,11 @@ public class JDBCManager implements DBManager {
                 String name = rs.getString("name");
                 String lastname = rs.getString("lastname");
                 String gender = rs.getString("gender");
-                String email = rs.getString("email");
+                //String email = rs.getString("email");
                 String fecha = rs.getString("date");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate date = LocalDate.parse(fecha, formatter);
-                Patient p = new Patient(id, name, date, lastname, gender, email);
+                Patient p = new Patient(id, name, date, lastname, gender);
                 patients.add(p);
             }
 

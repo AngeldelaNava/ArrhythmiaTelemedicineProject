@@ -19,10 +19,18 @@ public class Patient {
     private String email;
     private String gender;
     private Integer id;
-    private String username;
-    private String password;
+    //private String username;
+    //private String password;
 
     public Patient() {
+    }
+
+    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender) {
+        this.name = name;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.gender = gender;
+        this.id = id;
     }
 
     public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, String email) {
@@ -31,9 +39,10 @@ public class Patient {
         this.dob = dob;
         this.gender = gender;
         this.id = id;
+        this.email = email;
     }
 
-    public Patient(String name, String lastName, LocalDate dob, String email, String gender, Integer id, String username, String password) {
+    /*public Patient(String name, String lastName, LocalDate dob, String email, String gender, Integer id, String username, String password) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
@@ -42,8 +51,7 @@ public class Patient {
         this.password = password;
         this.gender = gender;
         this.id = id;
-    }
-
+    }*/
     public String getName() {
         return name;
     }
@@ -92,22 +100,20 @@ public class Patient {
         this.id = id;
     }
 
-    public String getUsername() {
+    /*public String getUsername() {
         return username;
-    }
+    }*/
 
-    public void setUsername(String username) {
+ /*public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
+    }*/
+ /*public String getPassword() {
         return password;
-    }
+    }*/
 
-    public void setPassword(String password) {
+ /*public void setPassword(String password) {
         this.password = password;
-    }
-
+    }*/
     public static String formatDate(LocalDate dob) {
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
         return formato.format(dob);
@@ -115,6 +121,8 @@ public class Patient {
 
     @Override
     public String toString() {
-        return "Patient{" + ", name=" + name + ", lastName=" + lastName + ", dob=" + dob + ", email=" + email + ", gender=" + gender + '}';
+        return "Patient{" + ", name=" + name + ", lastName=" + lastName
+                + ", dob=" + dob + ", gender=" + gender + ", email=" + email
+                + "}";
     }
 }

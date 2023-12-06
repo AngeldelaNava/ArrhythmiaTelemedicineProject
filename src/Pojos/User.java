@@ -9,7 +9,9 @@ package Pojos;
  * @author maria
  */
 public class User {
-    public int role;
+
+    public String role;
+    public int role_id;
     public String username;
     public String password;
     public int id;
@@ -21,20 +23,29 @@ public class User {
         this.username = username;
         this.password = password;
     }
-    
-    public User(int role, String username, String password, int id) {
+
+    public User(int role_id, String role, String username, String password, int id) {
+        this.role_id = role_id;
         this.role = role;
         this.username = username;
         this.password = password;
         this.id = id;
     }
-    
-    public int getRole() {
+
+    public String getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(String role) {
         this.role = role;
+    }
+
+    public int getRole_id() {
+        return role_id;
+    }
+
+    public void setRole_id(int role_id) {
+        this.role_id = role_id;
     }
 
     public String getUsername() {
@@ -63,6 +74,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "username=" + username + ", password=" + password + ", role=" + role + ", userId=" + id + '}';
+        return "User{" + "username=" + username + ", password=" + password + ", role=" + role_id + ", userId=" + id + '}';
     }
 }
