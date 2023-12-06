@@ -8,6 +8,8 @@ package Utilities;
 import Pojos.*;
 import java.io.*;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -206,7 +208,10 @@ public class Communication {
                             u.setUsername(data2[j + 1]);
                             break;
                         case "password":
-                            u.setPassword(data2[j + 1]);
+                            MessageDigest md = MessageDigest.getInstance("MD5");
+                            md.update(data2[j + 1].getBytes());
+                            byte[] hash = md.digest();
+                            u.setPassword(hash);
                             break;
                         case "role":
                             u.setRole(data2[j + 1]);
@@ -219,6 +224,8 @@ public class Communication {
             }
             System.out.println(u.toString());
         } catch (IOException ex) {
+            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
         }
         return u;

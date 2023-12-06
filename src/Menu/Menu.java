@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.MessageDigest;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.logging.Level;
@@ -149,7 +150,10 @@ public class Menu {
         String username = sc.next();
         System.out.println("Password:");
         String password = sc.next();
-        user.setPassword(password);
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] hash = md.digest();
+        user.setPassword(hash);
         user.setUsername(username);
         Utilities.Communication.sendUser(pw, user);//se lo pasas al server
         String line = bf.readLine();
