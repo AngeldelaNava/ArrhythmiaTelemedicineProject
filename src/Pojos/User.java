@@ -23,6 +23,13 @@ public class User {
         this.username = username;
         this.password = password;
     }
+    
+    public User(String username, byte[] password, int role) {
+		super();
+		this.username = username;
+		this.password = password;
+                this.role_id = role;
+	}
 
     public User(int role_id, String role, String username, byte[] password, int id) {
         this.role_id = role_id;

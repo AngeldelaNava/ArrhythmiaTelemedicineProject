@@ -10,6 +10,7 @@ import Pojos.Doctor;
 import Pojos.ECG;
 import Pojos.Patient;
 import static Pojos.Patient.formatDate;
+import Pojos.Role;
 import Pojos.User;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -510,6 +512,142 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return doctors;
+    }
+    
+    public void addRole(Role r) {
+       
+        String sq1 = "INSERT INTO role (type) VALUES (?)";
+        try {
+            PreparedStatement preparedStatement = c.prepareStatement(sq1);
+            preparedStatement.setString(1, r.getRole());
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    }
+    
+    public Role selectRoleById(Integer roleid) {
+        try {
+            String sql = "SELECT * FROM role WHERE roleid = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1,roleid);
+            ResultSet rs = p.executeQuery();
+            Role role = null;
+            if(rs.next()){
+                role = new Role (rs.getInt("roleid"),rs.getString("type"));
+            }
+            p.close();
+            rs.close();
+            return role ;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+     //@Override
+    public int getId(String username) {
+        String sql1 = "SELECT * FROM users WHERE userName = ?";
+        int id = 0;
+        try {
+            PreparedStatement preparedStatement = c.prepareStatement(sql1);
+            PreparedStatement p = c.prepareStatement(sql1);
+            p.setString(1, username);
+            ResultSet rs = p.executeQuery();
+            id = rs.getInt("userid");
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return id;
+    }
+    
+    //@Override
+    public void createLinkUserRole(int roleId, int userId) {
+        try {
+            String sql1 = "UPDATE users SET userRoleid = ? WHERE userid = ? ";
+            PreparedStatement pStatement = c.prepareStatement(sql1);
+            pStatement.setInt(1, roleId);
+            pStatement.setInt(2, userId);
+            pStatement.executeUpdate();
+            pStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    //@Override
+    public void createLinkUserDoctor(Integer userId, Integer doctorId) {
+        try {
+            String sql1 = "UPDATE doctor SET userId = ? WHERE doctorId = ? ";
+            PreparedStatement pStatement = c.prepareStatement(sql1);
+            pStatement.setInt(1, userId);
+            pStatement.setInt(2, doctorId);
+            pStatement.executeUpdate();
+            pStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    // @Override
+    public User checkPassword(String username, String password) {
+        User user = new User();
+        try {
+            String sql = "SELECT * FROM users WHERE userName = ? AND userPassword = ? ";
+            PreparedStatement preparedStatement = c.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                user.setPassword(rs.getString("userPassword"));
+                user.setUsername(rs.getString("userName"));
+            }
+            preparedStatement.close();
+            rs.close();
+            return user;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            user = null;
+        }
+        return user;
+    }
+     public User selectUserByUserId(Integer userId) {
+        try {
+            Date date;
+            String sql = "SELECT * FROM users WHERE userid = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            User u = new User();
+            if (rs.next()) {
+                u.setPassword(rs.getString("userPassword"));
+                u.setRole_id(rs.getInt("userRoleid"));
+                u.setId(userId);
+                u.setUsername(rs.getString("userName"));
+            }
+            p.close();
+            rs.close();
+            return u;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+     //@Override
+    public List<Doctor> selectAllDoctors()throws SQLException{
+        String sql = "SELECT * FROM doctor";
+        PreparedStatement p = c.prepareStatement(sql);
+
+        ResultSet rs = p.executeQuery();
+        List <Doctor> dList = new ArrayList<Doctor>();
+        while(rs.next()){ 
+            dList.add(new Doctor(rs.getInt("doctorId"),rs.getString("name"),rs.getString("lastName"),rs.getString("email")));
+        }
+        p.close();
+        rs.close();
+        return dList;
     }
 
 }

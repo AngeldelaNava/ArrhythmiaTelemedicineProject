@@ -13,7 +13,7 @@ public class Doctor {
     private String name;
     private String lastName;
     private String email;
-    private Integer patientId;
+    private Integer userId;
 
     public Doctor() {
     }
@@ -23,7 +23,7 @@ public class Doctor {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
-        this.patientId = patientId;
+        this.userId = patientId;
     }
     
     public Doctor(Integer doctorId, String name, String lastName, String email) {
@@ -31,6 +31,12 @@ public class Doctor {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
+    }
+    
+    public Doctor(String name, String lastName, Integer userId){
+        this.name = name;
+        this.lastName = lastName;
+        this.userId = userId;
     }
 
     public Integer getDoctorId() {
@@ -65,12 +71,12 @@ public class Doctor {
         this.email = email;
     }
 
-    public Integer getPatientId() {
-        return patientId;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUserId(Integer patientId) {
-        this.patientId = patientId;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     @Override
