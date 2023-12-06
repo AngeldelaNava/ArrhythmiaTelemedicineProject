@@ -241,9 +241,9 @@ public class Menu {
         Utilities.Communication.sendPatient(pw, p);
         User user = new User();
         System.out.print("Role: \n");
-        System.out.print("1. Doctor: \n");
-        System.out.print("2. Patient: \n");
-        Integer role = Integer.parseInt(sc.next());
+        System.out.print("D: Doctor: \n");
+        System.out.print("P: Patient: \n");
+        String role = sc.next();
         user.setRole(role);
         System.out.print("Username: ");
         String username = sc.next();

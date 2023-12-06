@@ -209,7 +209,7 @@ public class Communication {
                             u.setPassword(data2[j + 1]);
                             break;
                         case "role":
-                            u.setRole(Integer.parseInt(data2[j + 1]));
+                            u.setRole(data2[j + 1]);
                             break;
                         case "userId":
                             u.setId(Integer.parseInt(data2[j + 1]));
