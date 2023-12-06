@@ -6,6 +6,7 @@
 package JDBC;
 
 import Interfaces.DBManager;
+import Pojos.Doctor;
 import Pojos.ECG;
 import Pojos.Patient;
 import static Pojos.Patient.formatDate;
@@ -351,18 +352,164 @@ public class JDBCManager implements DBManager {
     }
 
     @Override
-    public void getUser(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public User getUser(int id) {
+        try {
+            String sql = "SELECT * FROM USER WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                String role = rs.getString("role");
+                int role_id = rs.getInt("role_id");
+                String username = rs.getString("username");
+                byte[] password = rs.getBytes("password");
+                User user = new User(role_id, role, username, password, id);
+                return user;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     @Override
-    public void getUser(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public User getUser(String username) {
+        try {
+            String sql = "SELECT * FROM USER WHERE username = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, username);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String role = rs.getString("role");
+                int role_id = rs.getInt("role_id");
+                byte[] password = rs.getBytes("password");
+                User user = new User(role_id, role, username, password, id);
+                return user;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     @Override
     public void deleteUser(String username, String password) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String sql = "DELETE FROM USER WHERE usernsme = ? AND password = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, username);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(password.getBytes());
+            byte[] hash = md.digest();
+            prep.setBytes(2, hash);
+            prep.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void addDoctor(Doctor doctor) {
+        try {
+            String sql = "INSERT INTO DOCTOR (name, lastname, email, patient_id) VALUES (?, ?, ?, ?)";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, doctor.getName());
+            prep.setString(2, doctor.getLastName());
+            prep.setString(3, doctor.getEmail());
+            prep.setInt(4, doctor.getPatientId());
+            prep.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public Doctor getDoctor(int id) {
+        try {
+            String sql = "SELECT * FROM DOCTOR WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                String name = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String email = rs.getString("email");
+                int patientId = rs.getInt("patient_id");
+                Doctor doctor = new Doctor(id, name, lastName, email, patientId);
+                return doctor;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public Doctor getDoctor(String name, String lastname) {
+        try {
+            String sql = "SELECT * FROM DOCTOR WHERE name = ? AND lastaname = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, name);
+            prep.setString(2, lastname);
+            ResultSet rs = prep.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String email = rs.getString("email");
+                int patientId = rs.getInt("patient_id");
+                Doctor doctor = new Doctor(id, name, lastname, email, patientId);
+                return doctor;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public ArrayList<Doctor> listAllDoctors() {
+        ArrayList<Doctor> doctors = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM DOCTOR";
+            PreparedStatement prep = c.prepareStatement(sql);
+            ResultSet rs = prep.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String email = rs.getString("email");
+                int patientId = rs.getInt("patient_id");
+                Doctor doctor = new Doctor(id, name, lastName, email, patientId);
+                doctors.add(doctor);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return doctors;
+    }
+
+    @Override
+    public ArrayList<Doctor> getDoctorsFromPatientId(int patientId) {
+        ArrayList<Doctor> doctors = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM DOCTOR WHERE patient_id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, patientId);
+            ResultSet rs = prep.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String lastName = rs.getString("lastname");
+                String email = rs.getString("email");
+                Doctor doctor = new Doctor(id, name, lastName, email, patientId);
+                doctors.add(doctor);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return doctors;
     }
 
 }

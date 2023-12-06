@@ -5,6 +5,7 @@
  */
 package Interfaces;
 
+import Pojos.Doctor;
 import Pojos.ECG;
 import Pojos.Patient;
 import Pojos.User;
@@ -49,9 +50,19 @@ public interface DBManager {
 
     public void addUser(User user);
 
-    public void getUser(int id);
+    public User getUser(int id);
 
-    public void getUser(String username);
+    public User getUser(String username);
 
     public void deleteUser(String username, String password);
+
+    public void addDoctor(Doctor doctor);
+
+    public Doctor getDoctor(int id);
+
+    public Doctor getDoctor(String name, String lastname);
+
+    public ArrayList<Doctor> listAllDoctors();
+
+    public ArrayList<Doctor> getDoctorsFromPatientId(int patientId);
 }
