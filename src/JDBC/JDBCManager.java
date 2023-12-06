@@ -421,7 +421,7 @@ public class JDBCManager implements DBManager {
             prep.setString(1, doctor.getName());
             prep.setString(2, doctor.getLastName());
             prep.setString(3, doctor.getEmail());
-            prep.setInt(4, doctor.getPatientId());
+            prep.setInt(4, doctor.getUserId());
             prep.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -513,9 +513,9 @@ public class JDBCManager implements DBManager {
         }
         return doctors;
     }
-    
+
     public void addRole(Role r) {
-       
+
         String sq1 = "INSERT INTO role (type) VALUES (?)";
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sq1);
@@ -525,28 +525,29 @@ public class JDBCManager implements DBManager {
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-    
+
     }
-    
+
     public Role selectRoleById(Integer roleid) {
         try {
             String sql = "SELECT * FROM role WHERE roleid = ?";
             PreparedStatement p = c.prepareStatement(sql);
-            p.setInt(1,roleid);
+            p.setInt(1, roleid);
             ResultSet rs = p.executeQuery();
             Role role = null;
-            if(rs.next()){
-                role = new Role (rs.getInt("roleid"),rs.getString("type"));
+            if (rs.next()) {
+                role = new Role(rs.getInt("roleid"), rs.getString("type"));
             }
             p.close();
             rs.close();
-            return role ;
+            return role;
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
-     //@Override
+    //@Override
+
     public int getId(String username) {
         String sql1 = "SELECT * FROM users WHERE userName = ?";
         int id = 0;
@@ -561,11 +562,11 @@ public class JDBCManager implements DBManager {
         }
         return id;
     }
-    
+
     //@Override
     public void createLinkUserRole(int roleId, int userId) {
         try {
-            String sql1 = "UPDATE users SET userRoleid = ? WHERE userid = ? ";
+            String sql1 = "INSERT users SET userRoleid = ? WHERE userid = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
             pStatement.setInt(1, roleId);
             pStatement.setInt(2, userId);
@@ -575,11 +576,11 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     //@Override
     public void createLinkUserDoctor(Integer userId, Integer doctorId) {
         try {
-            String sql1 = "UPDATE doctor SET userId = ? WHERE doctorId = ? ";
+            String sql1 = "INSERT doctor SET userId = ? WHERE doctorId = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
             pStatement.setInt(1, userId);
             pStatement.setInt(2, doctorId);
@@ -589,7 +590,33 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+    public void createLinkUserPatient(Integer userId, Integer patientId) {
+        try {
+            String sql1 = "INSERT patient SET userId = ? WHERE id = ? ";
+            PreparedStatement pStatement = c.prepareStatement(sql1);
+            pStatement.setInt(1, userId);
+            pStatement.setInt(2, patientId);
+            pStatement.executeUpdate();
+            pStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void createLinkDoctorPatient(int medCardNumber, int doctorId) {
+        try {
+            String sql = "INSERT INTO doctor_patient (patient_id, doctor_id) VALUES (?,?)";
+            PreparedStatement pStatement = c.prepareStatement(sql);
+            pStatement.setInt(1, medCardNumber);
+            pStatement.setInt(2, doctorId);
+            pStatement.executeUpdate();
+            pStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     // @Override
     public User checkPassword(String username, String password) {
         User user = new User();
@@ -601,7 +628,7 @@ public class JDBCManager implements DBManager {
 
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
-                user.setPassword(rs.getString("userPassword"));
+                user.setPassword(rs.getBytes("userPassword"));
                 user.setUsername(rs.getString("userName"));
             }
             preparedStatement.close();
@@ -613,7 +640,8 @@ public class JDBCManager implements DBManager {
         }
         return user;
     }
-     public User selectUserByUserId(Integer userId) {
+
+    public User selectUserByUserId(Integer userId) {
         try {
             Date date;
             String sql = "SELECT * FROM users WHERE userid = ?";
@@ -622,7 +650,7 @@ public class JDBCManager implements DBManager {
             ResultSet rs = p.executeQuery();
             User u = new User();
             if (rs.next()) {
-                u.setPassword(rs.getString("userPassword"));
+                u.setPassword(rs.getBytes("userPassword"));
                 u.setRole_id(rs.getInt("userRoleid"));
                 u.setId(userId);
                 u.setUsername(rs.getString("userName"));
@@ -635,15 +663,16 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-     //@Override
-    public List<Doctor> selectAllDoctors()throws SQLException{
+    //@Override
+
+    public List<Doctor> selectAllDoctors() throws SQLException {
         String sql = "SELECT * FROM doctor";
         PreparedStatement p = c.prepareStatement(sql);
 
         ResultSet rs = p.executeQuery();
-        List <Doctor> dList = new ArrayList<Doctor>();
-        while(rs.next()){ 
-            dList.add(new Doctor(rs.getInt("doctorId"),rs.getString("name"),rs.getString("lastName"),rs.getString("email")));
+        List<Doctor> dList = new ArrayList<Doctor>();
+        while (rs.next()) {
+            dList.add(new Doctor(rs.getInt("doctorId"), rs.getString("name"), rs.getString("lastName"), rs.getString("email")));
         }
         p.close();
         rs.close();
