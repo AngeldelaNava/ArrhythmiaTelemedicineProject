@@ -9,6 +9,7 @@ import Interfaces.DBManager;
 import Pojos.ECG;
 import Pojos.Patient;
 import static Pojos.Patient.formatDate;
+import Pojos.User;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -92,7 +93,7 @@ public class JDBCManager implements DBManager {
     @Override
     public void addPatient(Patient p) {
         try {
-            String sql = "INSERT INTO patients (name, lastname, date, gender, MAC) VALUES (?,?,?,?, ?)";
+            String sql = "INSERT INTO PATIENT (name, lastname, date, gender, MAC) VALUES (?,?,?,?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
             prep.setString(2, p.getLastName());
@@ -117,7 +118,7 @@ public class JDBCManager implements DBManager {
     public Patient searchPatient(String username, String password) {
         Patient p = null;
         try {
-            String sql = "SELECT * FROM patients WHERE username = ? AND password = ?";
+            String sql = "SELECT * FROM PATIENT WHERE username = ? AND password = ?";
             PreparedStatement stmt = c.prepareStatement(sql);
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(password.getBytes());
@@ -147,7 +148,7 @@ public class JDBCManager implements DBManager {
     }*/
     @Override
     public boolean verifyUsername(String username) {
-        String sql = "SELECT username FROM patient WHERE username = ?";
+        String sql = "SELECT username FROM USER WHERE username = ?";
         try {
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, username);
@@ -163,7 +164,7 @@ public class JDBCManager implements DBManager {
 
     @Override
     public boolean verifyPassword(String username, String passwordIntroduced) {
-        String sql = "SELECT password FROM patient WHERE username = ?";
+        String sql = "SELECT password FROM USER WHERE username = ?";
         try {
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, username);
@@ -195,11 +196,11 @@ public class JDBCManager implements DBManager {
                 String name = rs.getString("name");
                 String lastname = rs.getString("lastname");
                 String gender = rs.getString("gender");
-                //String email = rs.getString("email");
+                String email = rs.getString("email");
                 String fecha = rs.getString("date");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate date = LocalDate.parse(fecha, formatter);
-                Patient p = new Patient(id, name, date, lastname, gender);
+                Patient p = new Patient(id, name, date, lastname, gender, email);
                 patients.add(p);
             }
 
@@ -218,7 +219,7 @@ public class JDBCManager implements DBManager {
             System.out.println("ERROR: Username and/or current password are not correct");
         } else {
             try {
-                String sql = "UPDATE Patient SET password = ? WHEN username = ?";
+                String sql = "UPDATE USER SET password = ? WHEN username = ?";
                 PreparedStatement prep = c.prepareStatement(sql);
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(newPassword.getBytes());
@@ -332,6 +333,34 @@ public class JDBCManager implements DBManager {
         } catch (IOException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public void addUser(User user) {
+        try {
+            String sql = "INSERT INTO USER (role, username, password, role_id) VALUES (?, ?, ?, ?)";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setString(1, user.getRole());
+            prep.setString(2, user.getUsername());
+            prep.setBytes(3, user.getPassword());
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void getUser(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void getUser(String username) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void deleteUser(String username, String password) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

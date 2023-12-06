@@ -7,6 +7,7 @@ package Interfaces;
 
 import Pojos.ECG;
 import Pojos.Patient;
+import Pojos.User;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,4 +46,12 @@ public interface DBManager {
     public void deleteECG(int id);
 
     public void setECG(ECG ecg, int id);
+
+    public void addUser(User user);
+
+    public void getUser(int id);
+
+    public void getUser(String username);
+
+    public void deleteUser(String username, String password);
 }

@@ -13,18 +13,18 @@ public class User {
     public String role;
     public int role_id;
     public String username;
-    public String password;
+    public byte[] password;
     public int id;
 
     public User() {
     }
 
-    public User(String username, String password) {
+    public User(String username, byte[] password) {
         this.username = username;
         this.password = password;
     }
 
-    public User(int role_id, String role, String username, String password, int id) {
+    public User(int role_id, String role, String username, byte[] password, int id) {
         this.role_id = role_id;
         this.role = role;
         this.username = username;
@@ -56,11 +56,11 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
+    public byte[] getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(byte[] password) {
         this.password = password;
     }
 
