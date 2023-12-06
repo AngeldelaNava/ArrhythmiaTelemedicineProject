@@ -343,6 +343,8 @@ public class JDBCManager implements DBManager {
             prep.setString(1, user.getRole());
             prep.setString(2, user.getUsername());
             prep.setBytes(3, user.getPassword());
+            prep.setInt(4, user.getRole_id());
+            prep.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
