@@ -27,7 +27,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -643,7 +642,7 @@ public class JDBCManager implements DBManager {
 
     public User selectUserByUserId(Integer userId) {
         try {
-            Date date;
+            //Date date;
             String sql = "SELECT * FROM users WHERE userid = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, userId);
@@ -663,6 +662,36 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
+
+    public Patient selectPatientByUserId(Integer userId) {
+        try {
+            //Date date;
+            String sql = "SELECT * FROM patient WHERE userid = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            Patient p1 = new Patient();
+            if (rs.next()) {
+                p1.setName(rs.getString("Name"));
+                p1.setLastName(rs.getString("LastName"));
+                //Se utiliza esto para convertir una Date en una LocalDate
+                java.sql.Date sqlDate = rs.getDate("Date of Birth");
+                LocalDate localDate = sqlDate.toLocalDate();
+                p1.setDob(localDate);
+                p1.setEmail(rs.getString("Email"));
+                p1.setGender(rs.getString("Gender"));
+                p1.setId(rs.getInt("patientId"));
+                p1.setId(userId);
+
+            }
+            p.close();
+            rs.close();
+            return p1;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
     //@Override
 
     public List<Doctor> selectAllDoctors() throws SQLException {
@@ -677,6 +706,29 @@ public class JDBCManager implements DBManager {
         p.close();
         rs.close();
         return dList;
+    }
+
+    public Doctor selectDoctorByUserId(Integer userId) {
+        try {
+            String sql = "SELECT * FROM doctor WHERE userid = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            Doctor d = new Doctor();
+            if (rs.next()) {
+                d.setDoctorId(rs.getInt("doctorId"));
+                d.setName(rs.getString("Name"));
+                d.setLastName(rs.getString("lastName"));
+                d.setEmail(rs.getString("Email"));
+                d.setUserId(userId);
+            }
+            p.close();
+            rs.close();
+            return d;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
 }

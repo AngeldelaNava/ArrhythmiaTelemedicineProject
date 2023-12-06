@@ -173,7 +173,7 @@ public class Menu {
         int option = 0;
         Patient patient = Utilities.Communication.receivePatient(br);
         do {
-            System.out.println("Choose an option [0-3]:"
+            System.out.println("Choose an option [0-2]:"
                     + "\n1. Start recording \n2. Consult my recordings \n0.Exit");
             option = sc.nextInt();
             pw.println(option);
