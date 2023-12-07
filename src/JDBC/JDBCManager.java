@@ -12,12 +12,16 @@ import Pojos.Patient;
 import static Pojos.Patient.formatDate;
 import Pojos.Role;
 import Pojos.User;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -238,26 +242,75 @@ public class JDBCManager implements DBManager {
     }
 
     @Override
-    public void addECG(ECG ecg) {
+    public void addECG(ECG ecg, Patient p) {
+        String sq1 = "INSERT INTO ecg (startDate, ECGFilename, id_patient) VALUES (?, ?, ?, ?)";
+	PreparedStatement template;
         try {
-            String sql = "INSERT INTO ECG (ecg, patientId, date) VALUES (?, ?, ?)";
-            PreparedStatement prep = c.prepareStatement(sql);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bos);
-            out.writeObject(ecg.getEcg());
-            byte[] bytes = bos.toByteArray();
-            prep.setString(1, String.valueOf(ecg.getEcg()));//Revisar que esté bien
-            prep.setInt(2, ecg.getPatient_id());
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            prep.setString(3, ecg.getStartDate().format(dtf));
-            prep.executeUpdate();
-            prep.close();
+            template = c.prepareStatement(sq1);
+            template.setString(1, formatDate(ecg.getStartDate()));
+            template.setString(2, ecg.getECGFile());
+            template.setInt(4, p.getId());
+            template.executeUpdate();
+            template.close();	
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public ECG selectSignalByName (String name) {
+        ECG s= new ECG();
+        String cadena1;
+        String cadena2;
+        String ruta1;
+        String ruta2;
+        List<Integer> values = new ArrayList();
+        List<Integer> values2 = new ArrayList();
+       
+        LocalDate date;
+        FileReader f = null;
+        FileReader f2 = null;
+        BufferedReader b = null;
+        BufferedReader b2 = null;
+        try {
+            String SQL_code = "SELECT * FROM signal WHERE  ECGFilename = ? ";
+            PreparedStatement template = this.c.prepareStatement(SQL_code);
+            template.setString(1, name);
+           
+            ResultSet result_set = template.executeQuery();
+            while(result_set.next()){
+            s.setId(result_set.getInt("signalId"));
+            s.setStartDate(LocalDate.parse(result_set.getString("startDate")));
+            s.setECGFile(result_set.getString("ECGFilename"));
+
+            // Get the values of the ECG:
+            if(name.contains("ECG")){
+                ruta1 = "../Patient/"+s.getECGFile();
+                f = new FileReader(ruta1);
+                b = new BufferedReader(f);
+                while((cadena1 = b.readLine())!=null) {
+                    String[] separatedCadena = cadena1.replaceAll("\\[", "").replaceAll("]", "").replace(" ", "").split(",");
+                    for (int i=0; i < separatedCadena.length;i++){
+                        values.add(i, Integer.parseInt(separatedCadena[i]));
+                    }
+                    s.setEcg(values);
+                }
+            }
+            }
+            template.close();
+            
+            return s;
+        } catch (SQLException selectSignalByType_error) {
+            selectSignalByType_error.printStackTrace();
+            return null;
+	} catch (FileNotFoundException ex) {       
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } catch (IOException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
 
     @Override
     public ECG findECG(int id) {
@@ -307,6 +360,17 @@ public class JDBCManager implements DBManager {
     public void deleteECG(int id) {
         try {
             String sql = "DELETE FROM ECG WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void deletePatient(int id) {
+        try {
+            String sql = "DELETE FROM Patient WHERE id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, id);
             prep.executeUpdate();
@@ -730,5 +794,96 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
+    public List<Patient> selectPatientsByDoctorId(int doctorId){
+        try {
+            String sql = "SELECT * FROM doctor_patient WHERE doctor_id = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1,doctorId);
+            ResultSet rs = p.executeQuery();
+            List <Patient> pList = new ArrayList<Patient>();
+            
+            while(rs.next()){ 
+                pList.add(selectPatient(rs.getInt("patient_id")));
+            }
+            p.close();
+            rs.close();
+            return pList;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+    public Patient selectPatient(Integer id){
+        try {
+            LocalDate date;
+            String sql = "SELECT * FROM patient WHERE id = ?";
+            PreparedStatement p = c.prepareStatement(sql);
+            p.setInt(1,id);
+            ResultSet rs = p.executeQuery();
+            Patient patient = null;
+            if(rs.next()){
+                patient = new Patient(rs.getString("name"),rs.getString("lastName"), LocalDate.parse(rs.getString("dob")),
+                    rs.getString("email"),rs.getString("gender"));
+            }
+            p.close();
+            rs.close();
+            return patient;
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+    public boolean editPatient(Integer id, String name, String surname, LocalDate dob, 
+                String email, String gender) {
 
+		String sql;
+		PreparedStatement pStatement;
+                try {
+		if (name != null) {
+			sql = "UPDATE patient SET name = ? WHERE id = ?";
+			pStatement = c.prepareStatement(sql);
+			pStatement.setString(1, name);
+                        pStatement.setInt(2, id);
+			pStatement.executeUpdate();	
+		} 
+		if (surname != null) {
+			sql = "UPDATE patient SET surname = ? WHERE medical_card_number = ?";
+			pStatement = c.prepareStatement(sql);
+			pStatement.setString(1, surname);
+			pStatement.setInt(2, id);
+			pStatement.executeUpdate();
+		}
+                
+                if (dob != null) {
+			sql = "UPDATE patient SET dob = ? WHERE medical_card_number = ?";
+			pStatement = c.prepareStatement(sql);
+			pStatement.setString(1,formatDate(dob));
+                        pStatement.setInt(2, id);
+			pStatement.executeUpdate();
+		}
+                
+                if (email != null) {
+			sql = "UPDATE patient SET email = ? WHERE medical_card_number = ?";
+			pStatement = c.prepareStatement(sql);
+			pStatement.setString(1, email);
+                        pStatement.setInt(2, id);
+			pStatement.executeUpdate();	
+		}
+                
+		if (gender != null) {
+			sql = "UPDATE patient SET gender = ? WHERE medical_card_number = ?";
+			pStatement = c.prepareStatement(sql);
+			pStatement.setString(1, gender);
+                        pStatement.setInt(2, id);
+			pStatement.executeUpdate();	
+		}
+                
+		
+		   return true;
+            } catch (SQLException update_patient_error) {
+                update_patient_error.printStackTrace();
+                return false;
+            }
+	}
 }
+

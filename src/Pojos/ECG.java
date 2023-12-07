@@ -52,6 +52,12 @@ public class ECG {
     public String getEcg() {
         return ecg;
     }
+    public String getECGFile() {
+        return ECGFile;
+    }
+    public void setECGFile(String ECGFile) {
+        this.ECGFile=ECGFile;
+    }
 
     public LocalDate getStartDate() {
         return startDate;

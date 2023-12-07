@@ -42,16 +42,14 @@ public class Patient {
         this.email = email;
     }
 
-    /*public Patient(String name, String lastName, LocalDate dob, String email, String gender, Integer id, String username, String password) {
+    public Patient(String name, String lastName, LocalDate dob, String email, String gender) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.email = email;
-        this.username = username;
-        this.password = password;
         this.gender = gender;
         this.id = id;
-    }*/
+    }
     public String getName() {
         return name;
     }

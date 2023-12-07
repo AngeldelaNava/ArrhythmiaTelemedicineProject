@@ -55,6 +55,14 @@ public class Communication {
         pw.println(patient.toString());
 
     }
+    public static void sendPatientList(List<Patient> patientList, PrintWriter pw, BufferedReader br) throws IOException {
+        for (Patient patient : patientList) {
+            System.out.println(patient.toString()); // Solo para verificar en la consola
+
+            // Enviar la representación en cadena del paciente al PrintWriter
+            pw.println(patient.toString());
+        }
+    }
 
     public static void sendSignal(PrintWriter printWriter, ECG signal) {
         printWriter.println(signal.toString());

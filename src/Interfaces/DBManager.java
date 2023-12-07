@@ -38,7 +38,7 @@ public interface DBManager {
 
     public void changePassword(String username, String oldPassword, String newPassword);
 
-    public void addECG(ECG ecg);
+    public void addECG(ECG ecg, Patient p);
 
     public ECG findECG(int id);
 

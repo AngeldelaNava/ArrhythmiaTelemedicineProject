@@ -60,7 +60,7 @@ public class Client implements Runnable {
         signalman = manager.getSignalManager();*/
         manager.createTables(); //creo las tablas
         createRoles(role); //establezco los tipos de role que puede haber
-        Utilities.ClientMethods.firstlogin(userman, doctorman, roleman);
+        Utilities.ClientMethods.firstlogin(user, doctor, role);
 
         InputStream inputStream;
         OutputStream outputStream;
@@ -71,7 +71,7 @@ public class Client implements Runnable {
             outputStream = socket.getOutputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             PrintWriter pw = new PrintWriter(outputStream, true);
-            first(inputStream, outputStream, br, pw, userman, patientman, signalman, doctorman);
+            menu(inputStream, outputStream, br, pw, user, patient, ecg, doctor);
 
         } catch (IOException e) {
             System.out.println("An error has occured");
@@ -106,7 +106,7 @@ public class Client implements Runnable {
                                     Utilities.Communication.sendPatient(pw, p);
                                     patientMenu(user, br, pw, userman, patientman, signalman);
                                 }
-                            } else if (user.getRole() == 2) {
+                            } else if (user.getRole_id() == 2) {
                                 pw.println("doctor");
                                 int c = Integer.parseInt(br.readLine());
                                 if (c == 1) {
@@ -144,11 +144,11 @@ public class Client implements Runnable {
                 case 1:
                     int userid1 = userman.getId(u.getUsername());
                     Patient p1 = patientman.selectPatientByUserId(userid1);
-                    ECG s = Utilities.Communication.recieveSignal(br, pw);
+                    ECG s = Utilities.Communication.receiveSignal(br);
                     s.CreateECGFilename(p1.getName());
                     s.StartDate();
                     s.StoreECGinFile(p1.getName());
-                    signalman.addSignal(s, p1);
+                    signalman.addECG(s, p1);
                     break;
                 case 3:
                     int userid3 = userman.getId(u.getUsername());
@@ -195,20 +195,20 @@ public class Client implements Runnable {
                     while (a != 0) {
                         int uid = userman.getId(u.getUsername());
                         Doctor d3 = doctorman.selectDoctorByUserId(uid);
-                        List<Patient> pList = patientman.selectPatientsByDoctorId(doctorman.getId(d3.getDoctorName()));
+                        List<Patient> pList = patientman.selectPatientsByDoctorId(doctorman.getId(d3.getName()));
                         Utilities.Communication.sendPatientList(pList, pw, br);
                         int medcard = Integer.parseInt(br.readLine());
                         Patient p = patientman.selectPatient(medcard);
                         Utilities.Communication.sendPatient(pw, p);
                         Patient updatep = Utilities.Communication.receivePatient(br);
-                        patientman.editPatient(updatep.getPatientName(), updatep.getPatientSurname(), updatep.getPatientDob(), updatep.getPatientEmail(), updatep.getPatientGender());
+                        patientman.editPatient(updatep.getId(), updatep.getName(), updatep.getLastName(), updatep.getDob(), updatep.getEmail(), updatep.getGender());
                         a = Integer.parseInt(br.readLine());
                     }
                     break;
                 case 4:
                     int userid1 = userman.getId(u.getUsername());
                     Doctor d1 = doctorman.selectDoctorByUserId(userid1);
-                    List<Patient> patientList1 = patientman.selectPatientsByDoctorId(doctorman.getId(d1.getDoctorName()));
+                    List<Patient> patientList1 = patientman.selectPatientsByDoctorId(doctorman.getId(d1.getName()));
                     Utilities.Communication.sendPatientList(patientList1, pw, br);
                     int medcard2 = Integer.parseInt(br.readLine());
                     if (medcard2 == 2) {
@@ -217,7 +217,7 @@ public class Client implements Runnable {
                     } else if (medcard2 == 0) {
                         break;
                     }
-                    Utilities.Communication.sendAllSignal(br, pw, signalman, medcard2);
+                    Utilities.Communication.sendSignal(br, pw, signalman);
                     String filename = br.readLine();
                     ECG s1 = signalman.selectSignalByName(filename);
                     pw.println(s1.toString());
@@ -225,7 +225,7 @@ public class Client implements Runnable {
                 case 5:
                     int userid2 = userman.getId(u.getUsername());
                     Doctor d2 = doctorman.selectDoctorByUserId(userid2);
-                    List<Patient> patientList2 = patientman.selectPatientsByDoctorId(doctorman.getId(d2.getDoctorName()));
+                    List<Patient> patientList2 = patientman.selectPatientsByDoctorId(doctorman.getId(d2.getName()));
                     Utilities.Communication.sendPatientList(patientList2, pw, br);
                     int medcard3 = Integer.parseInt(br.readLine());
                     if (medcard3 == 2) {
@@ -235,7 +235,7 @@ public class Client implements Runnable {
                         break;
                     }
                     Patient pToDelete = patientman.selectPatient(medcard3);
-                    patientman.deletePatientByMedicalCardId(pToDelete.getMedCardId());
+                    patientman.deletePatient(pToDelete.getId());
                     String medcard = "" + medcard3;
                     userman.deleteUserByUserName(medcard);
                     break;
