@@ -84,43 +84,26 @@ public class Client implements Runnable {
         do {
             try {
                 option = Integer.parseInt(br.readLine());
-
                 switch (option) {
                     case 1:
                         Utilities.ClientMethods.registerPatient(br, pw, userman, patientman, doctorman);
                         break;
                     case 2:
-                        int a = Integer.parseInt(br.readLine());
-                        if (a == 1) {
-                            break;
-                        } else {
-                            User user = Utilities.ClientMethods.login(br, pw, userman);
-
-                            if (user.getRole_id() == 1) {
-                                pw.println("patient");
-                                int b = Integer.parseInt(br.readLine());
-                                if (b == 1) {
-                                    break;
-                                } else {
-                                    Patient p = patientman.selectPatientByUserId(user.getId());
-                                    Utilities.Communication.sendPatient(pw, p);
-                                    patientMenu(user, br, pw, userman, patientman, signalman);
-                                }
-                            } else if (user.getRole_id() == 2) {
-                                pw.println("doctor");
-                                int c = Integer.parseInt(br.readLine());
-                                if (c == 1) {
-                                    break;
-                                } else {
-                                    Doctor d = doctorman.selectDoctorByUserId(user.getId());
-                                    Utilities.Communication.sendDoctor(pw, d);
-                                    doctorMenu(user, br, pw, userman, patientman, signalman, doctorman);
-                                }
+                            User user = Utilities.ClientMethods.login(br, pw, userman); //user hace log in
+                            if (user.getRole_id() == 1) { //es paciente
+                                pw.println("patient"); //envia patient al client
+                                Patient p = patientman.selectPatientByUserId(user.getId()); //selecciona paciente asociado al usuario userId=Id de la clase user
+                                Utilities.Communication.sendPatient(pw, p); //envía la información del paciente al cliente
+                                patientMenu(user, br, pw, userman, patientman, signalman); //menu paciente
+                            } else if (user.getRole_id() == 2) { //es medico
+                                pw.println("doctor"); //envía doctor al client
+                                Doctor d = doctorman.selectDoctorByUserId(user.getId()); //selecciona doctor asociado a usuario
+                                Utilities.Communication.sendDoctor(pw, d); //envia la inforamcion del doctor al cliente
+                                doctorMenu(user, br, pw, userman, patientman, signalman, doctorman); //menu doctor
                             }
-                        }
                         break;
                     case 0:
-                        Server.releaseClientResources(inputStream, outputStream, socket);
+                        Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
                         break;
                 }
             } catch (IOException ex) {
@@ -142,21 +125,27 @@ public class Client implements Runnable {
                     Server.ReleaseClientThread(socket);
                     break;
                 case 1:
-                    int userid1 = userman.getId(u.getUsername());
-                    Patient p1 = patientman.selectPatientByUserId(userid1);
-                    ECG s = Utilities.Communication.receiveSignal(br);
-                    s.CreateECGFilename(p1.getName());
-                    s.StartDate();
-                    s.StoreECGinFile(p1.getName());
-                    signalman.addECG(s, p1);
+                    int userid1 = userman.getId(u.getUsername()); //lee ID del user
+                    Patient p1 = patientman.selectPatientByUserId(userid1); //se selecciona al paciente asociado con el id del user
+                    ECG s = Utilities.Communication.receiveSignal(br); //recive una señal ECG del cliente
+                    s.CreateECGFilename(p1.getName()); //crea nombre de archivo para la señal ECG
+                    s.StartDate(); //se inicia fecha
+                    s.StoreECGinFile(p1.getName()); //almacena la señal ECG
+                    signalman.addECG(s, p1); //se añade la señal ECG al paciente
+                    break;
+                case 2:
+                    int userid = userman.getId(u.getUsername()); //lee ID del user
+                    Patient p = patientman.selectPatientByUserId(userid); //se selecciona al paciente asociado con el id del user
+                    System.out.println("You are going to record your ECG signal");
+                    Utilities.Communication.recordSignal(p, pw);
                     break;
                 case 3:
                     int userid3 = userman.getId(u.getUsername());
                     Patient p3 = patientman.selectPatientByUserId(userid3);
-                    Utilities.Communication.sendAllSignal(br, pw, signalman, p3.getId());
+                    Utilities.Communication.sendAllSignal(br, pw, signalman, p3.getId()); //envía todas las señales ECG asociadas al paciente al cliente
                     String filename = br.readLine();
-                    ECG s1 = signalman.selectSignalByName(filename);
-                    pw.println(s1.toString());
+                    ECG s1 = signalman.selectSignalByName(filename); //selecciona la señak ECG por nombre
+                    pw.println(s1.toString()); //envía la representación en acdena de la señal ECG al cliente
                     break;
 
             }
