@@ -9,6 +9,7 @@ package Pojos;
  * @author maria
  */
 public class Doctor {
+
     private Integer doctorId; //Unique for each doctor - cannot be repeated for another patient.
     private String name;
     private String lastName;
@@ -18,22 +19,22 @@ public class Doctor {
     public Doctor() {
     }
 
-    public Doctor(Integer doctorId, String name, String lastName, String email, Integer patientId) {
+    public Doctor(Integer doctorId, String name, String lastName, String email, Integer userId) {
         this.doctorId = doctorId;
         this.name = name;
         this.lastName = lastName;
         this.email = email;
-        this.userId = patientId;
+        this.userId = userId;
     }
-    
+
     public Doctor(Integer doctorId, String name, String lastName, String email) {
         this.doctorId = doctorId;
         this.name = name;
         this.lastName = lastName;
         this.email = email;
     }
-    
-    public Doctor(String name, String lastName, Integer userId){
+
+    public Doctor(String name, String lastName, Integer userId) {
         this.name = name;
         this.lastName = lastName;
         this.userId = userId;
@@ -55,7 +56,7 @@ public class Doctor {
         this.name = name;
     }
 
-    public String getLastName(){
+    public String getLastName() {
         return lastName;
     }
 

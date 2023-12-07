@@ -40,6 +40,8 @@ public interface DBManager {
 
     public void addECG(ECG ecg, Patient p);
 
+    public ECG selectSignalByName(String name);
+
     public ECG findECG(int id);
 
     public ArrayList<String> findECGByPatientId(int patient_id);

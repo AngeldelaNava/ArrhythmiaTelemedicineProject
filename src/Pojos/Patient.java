@@ -6,6 +6,8 @@ package Pojos;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -19,37 +21,69 @@ public class Patient {
     private String email;
     private String gender;
     private Integer id;
+    private Integer userId;
+    private List<Integer> doctorIds = new ArrayList<>();
     //private String username;
     //private String password;
 
     public Patient() {
     }
 
-    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender) {
+    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, ArrayList<Integer> doctorIds) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.gender = gender;
         this.id = id;
+        this.doctorIds = doctorIds;
     }
 
-    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, String email) {
+    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, String email, int userId, ArrayList<Integer> doctorIds) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.gender = gender;
         this.id = id;
         this.email = email;
+        this.userId = userId;
+        this.doctorIds = doctorIds;
     }
 
-    public Patient(String name, String lastName, LocalDate dob, String email, String gender) {
+    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, String email, int userId) {
+        this.name = name;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.gender = gender;
+        this.id = id;
+        this.email = email;
+        this.userId = userId;
+    }
+
+    public Patient(String name, String lastName, LocalDate dob, String email, String gender, int userId) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.email = email;
         this.gender = gender;
-        this.id = id;
+        this.userId = userId;
     }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public List<Integer> getDoctorIds() {
+        return doctorIds;
+    }
+
+    public void setDoctorIds(List<Integer> doctorIds) {
+        this.doctorIds = doctorIds;
+    }
+
     public String getName() {
         return name;
     }

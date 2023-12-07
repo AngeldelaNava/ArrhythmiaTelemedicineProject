@@ -10,7 +10,7 @@ package Pojos;
  */
 public class User {
 
-    public String role;
+    //public String role;
     public int role_id;
     public String username;
     public byte[] password;
@@ -23,30 +23,29 @@ public class User {
         this.username = username;
         this.password = password;
     }
-    
-    public User(String username, byte[] password, int role) {
-		super();
-		this.username = username;
-		this.password = password;
-                this.role_id = role;
-	}
 
-    public User(int role_id, String role, String username, byte[] password, int id) {
+    public User(String username, byte[] password, int role) {
+        super();
+        this.username = username;
+        this.password = password;
+        this.role_id = role;
+    }
+
+    public User(int role_id, String username, byte[] password, int id) {
         this.role_id = role_id;
-        this.role = role;
+        //this.role = role;
         this.username = username;
         this.password = password;
         this.id = id;
     }
 
-    public String getRole() {
+    /*public String getRole() {
         return role;
-    }
+    }*/
 
-    public void setRole(String role) {
+ /*public void setRole(String role) {
         this.role = role;
-    }
-
+    }*/
     public int getRole_id() {
         return role_id;
     }

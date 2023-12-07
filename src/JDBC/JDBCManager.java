@@ -21,7 +21,6 @@ import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,22 +68,29 @@ public class JDBCManager implements DBManager {
         try {
             Statement stmt = c.createStatement();
 
-            String sq1 = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
+            String sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " email TEXT NOT NULL,"
-                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL) ";
-            stmt.executeUpdate(sq1);
-            sq1 = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
+                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL,"
+                    + " user_id INTEGER REFERENCES USER(id)) ";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
                     + " patientId INTEGER REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
-            stmt.executeUpdate(sq1);
-            sq1 = "CREATE TABLE IF NOT EXIST USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " role TEXT CHECK (role = 'P' OR role = 'D'), " + "username TEXT NOT NULL,"
-                    + " password BLOB NOT NULL," + " role_id INTEGER NOT NULL)";
-            stmt.executeUpdate(sq1);
-            sq1 = "CREATE TABLE IF NOT EXIST DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXIST ROLE " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + " type TEXT NOT NULL)";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXIST USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
+                    + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASACDE ON DELETE CASCADE)";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXIST DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " name TEXT NOT NULL," + " lastname TEXT NOT NULL," + " email TEXT NOT NULL,"
-                    + " patient_id INTEGER REFERENCES PATIENT(id) ON UPDATE CASACDE ON DELETE CASCADE)";
-            stmt.executeUpdate(sq1);
+                    + " user_id INTEGER REFERENCES USER(id))";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXIST PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
+                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patien_id, doctor_id))";
+            stmt.executeUpdate(sql);
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -204,9 +210,10 @@ public class JDBCManager implements DBManager {
                 String gender = rs.getString("gender");
                 String email = rs.getString("email");
                 String fecha = rs.getString("date");
+                int userId = rs.getInt("user_id");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate date = LocalDate.parse(fecha, formatter);
-                Patient p = new Patient(id, name, date, lastname, gender, email);
+                Patient p = new Patient(id, name, date, lastname, gender, email, userId);
                 patients.add(p);
             }
 
@@ -244,28 +251,29 @@ public class JDBCManager implements DBManager {
     @Override
     public void addECG(ECG ecg, Patient p) {
         String sq1 = "INSERT INTO ecg (startDate, ECGFilename, id_patient) VALUES (?, ?, ?, ?)";
-	PreparedStatement template;
+        PreparedStatement template;
         try {
             template = c.prepareStatement(sq1);
             template.setString(1, formatDate(ecg.getStartDate()));
             template.setString(2, ecg.getECGFile());
             template.setInt(4, p.getId());
             template.executeUpdate();
-            template.close();	
+            template.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public ECG selectSignalByName (String name) {
-        ECG s= new ECG();
+
+    @Override
+    public ECG selectSignalByName(String name) {
+        ECG s = new ECG();
         String cadena1;
         String cadena2;
         String ruta1;
         String ruta2;
         List<Integer> values = new ArrayList();
         List<Integer> values2 = new ArrayList();
-       
+
         LocalDate date;
         FileReader f = null;
         FileReader f2 = null;
@@ -275,34 +283,34 @@ public class JDBCManager implements DBManager {
             String SQL_code = "SELECT * FROM signal WHERE  ECGFilename = ? ";
             PreparedStatement template = this.c.prepareStatement(SQL_code);
             template.setString(1, name);
-           
-            ResultSet result_set = template.executeQuery();
-            while(result_set.next()){
-            s.setId(result_set.getInt("signalId"));
-            s.setStartDate(LocalDate.parse(result_set.getString("startDate")));
-            s.setECGFile(result_set.getString("ECGFilename"));
 
-            // Get the values of the ECG:
-            if(name.contains("ECG")){
-                ruta1 = "../Patient/"+s.getECGFile();
-                f = new FileReader(ruta1);
-                b = new BufferedReader(f);
-                while((cadena1 = b.readLine())!=null) {
-                    String[] separatedCadena = cadena1.replaceAll("\\[", "").replaceAll("]", "").replace(" ", "").split(",");
-                    for (int i=0; i < separatedCadena.length;i++){
-                        values.add(i, Integer.parseInt(separatedCadena[i]));
+            ResultSet result_set = template.executeQuery();
+            while (result_set.next()) {
+                s.setId(result_set.getInt("signalId"));
+                s.setStartDate(LocalDate.parse(result_set.getString("startDate")));
+                s.setECGFile(result_set.getString("ECGFilename"));
+
+                // Get the values of the ECG:
+                if (name.contains("ECG")) {
+                    ruta1 = "../Patient/" + s.getECGFile();
+                    f = new FileReader(ruta1);
+                    b = new BufferedReader(f);
+                    while ((cadena1 = b.readLine()) != null) {
+                        String[] separatedCadena = cadena1.replaceAll("\\[", "").replaceAll("]", "").replace(" ", "").split(",");
+                        for (int i = 0; i < separatedCadena.length; i++) {
+                            values.add(i, Integer.parseInt(separatedCadena[i]));
+                        }
+                        s.setEcg(values);
                     }
-                    s.setEcg(values);
                 }
             }
-            }
             template.close();
-            
+
             return s;
         } catch (SQLException selectSignalByType_error) {
             selectSignalByType_error.printStackTrace();
             return null;
-	} catch (FileNotFoundException ex) {       
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         } catch (IOException ex) {
@@ -310,7 +318,6 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-
 
     @Override
     public ECG findECG(int id) {
@@ -368,6 +375,7 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public void deletePatient(int id) {
         try {
             String sql = "DELETE FROM Patient WHERE id = ?";
@@ -404,12 +412,12 @@ public class JDBCManager implements DBManager {
     @Override
     public void addUser(User user) {
         try {
-            String sql = "INSERT INTO USER (role, username, password, role_id) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO USER (username, password, role_id) VALUES (?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
-            prep.setString(1, user.getRole());
-            prep.setString(2, user.getUsername());
-            prep.setBytes(3, user.getPassword());
-            prep.setInt(4, user.getRole_id());
+            //prep.setString(1, user.getRole());
+            prep.setString(1, user.getUsername());
+            prep.setBytes(2, user.getPassword());
+            prep.setInt(3, user.getRole_id());
             prep.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -424,11 +432,11 @@ public class JDBCManager implements DBManager {
             prep.setInt(1, id);
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
-                String role = rs.getString("role");
+                //String role = rs.getString("role");
                 int role_id = rs.getInt("role_id");
                 String username = rs.getString("username");
                 byte[] password = rs.getBytes("password");
-                User user = new User(role_id, role, username, password, id);
+                User user = new User(role_id, username, password, id);
                 return user;
             }
         } catch (SQLException ex) {
@@ -446,10 +454,10 @@ public class JDBCManager implements DBManager {
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
-                String role = rs.getString("role");
+                //String role = rs.getString("role");
                 int role_id = rs.getInt("role_id");
                 byte[] password = rs.getBytes("password");
-                User user = new User(role_id, role, username, password, id);
+                User user = new User(role_id, username, password, id);
                 return user;
             }
         } catch (SQLException ex) {
@@ -794,15 +802,16 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-    public List<Patient> selectPatientsByDoctorId(int doctorId){
+
+    public List<Patient> selectPatientsByDoctorId(int doctorId) {
         try {
             String sql = "SELECT * FROM doctor_patient WHERE doctor_id = ?";
             PreparedStatement p = c.prepareStatement(sql);
-            p.setInt(1,doctorId);
+            p.setInt(1, doctorId);
             ResultSet rs = p.executeQuery();
-            List <Patient> pList = new ArrayList<Patient>();
-            
-            while(rs.next()){ 
+            List<Patient> pList = new ArrayList<Patient>();
+
+            while (rs.next()) {
                 pList.add(selectPatient(rs.getInt("patient_id")));
             }
             p.close();
@@ -813,17 +822,18 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-    public Patient selectPatient(Integer id){
+
+    public Patient selectPatient(Integer id) {
         try {
             LocalDate date;
             String sql = "SELECT * FROM patient WHERE id = ?";
             PreparedStatement p = c.prepareStatement(sql);
-            p.setInt(1,id);
+            p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             Patient patient = null;
-            if(rs.next()){
-                patient = new Patient(rs.getString("name"),rs.getString("lastName"), LocalDate.parse(rs.getString("dob")),
-                    rs.getString("email"),rs.getString("gender"));
+            if (rs.next()) {
+                patient = new Patient(rs.getString("name"), rs.getString("lastName"), LocalDate.parse(rs.getString("dob")),
+                        rs.getString("email"), rs.getString("gender"), rs.getInt("user_id"));
             }
             p.close();
             rs.close();
@@ -833,57 +843,56 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-    public boolean editPatient(Integer id, String name, String surname, LocalDate dob, 
-                String email, String gender) {
 
-		String sql;
-		PreparedStatement pStatement;
-                try {
-		if (name != null) {
-			sql = "UPDATE patient SET name = ? WHERE id = ?";
-			pStatement = c.prepareStatement(sql);
-			pStatement.setString(1, name);
-                        pStatement.setInt(2, id);
-			pStatement.executeUpdate();	
-		} 
-		if (surname != null) {
-			sql = "UPDATE patient SET surname = ? WHERE medical_card_number = ?";
-			pStatement = c.prepareStatement(sql);
-			pStatement.setString(1, surname);
-			pStatement.setInt(2, id);
-			pStatement.executeUpdate();
-		}
-                
-                if (dob != null) {
-			sql = "UPDATE patient SET dob = ? WHERE medical_card_number = ?";
-			pStatement = c.prepareStatement(sql);
-			pStatement.setString(1,formatDate(dob));
-                        pStatement.setInt(2, id);
-			pStatement.executeUpdate();
-		}
-                
-                if (email != null) {
-			sql = "UPDATE patient SET email = ? WHERE medical_card_number = ?";
-			pStatement = c.prepareStatement(sql);
-			pStatement.setString(1, email);
-                        pStatement.setInt(2, id);
-			pStatement.executeUpdate();	
-		}
-                
-		if (gender != null) {
-			sql = "UPDATE patient SET gender = ? WHERE medical_card_number = ?";
-			pStatement = c.prepareStatement(sql);
-			pStatement.setString(1, gender);
-                        pStatement.setInt(2, id);
-			pStatement.executeUpdate();	
-		}
-                
-		
-		   return true;
-            } catch (SQLException update_patient_error) {
-                update_patient_error.printStackTrace();
-                return false;
+    public boolean editPatient(Integer id, String name, String surname, LocalDate dob,
+            String email, String gender) {
+
+        String sql;
+        PreparedStatement pStatement;
+        try {
+            if (name != null) {
+                sql = "UPDATE patient SET name = ? WHERE id = ?";
+                pStatement = c.prepareStatement(sql);
+                pStatement.setString(1, name);
+                pStatement.setInt(2, id);
+                pStatement.executeUpdate();
             }
-	}
-}
+            if (surname != null) {
+                sql = "UPDATE patient SET surname = ? WHERE medical_card_number = ?";
+                pStatement = c.prepareStatement(sql);
+                pStatement.setString(1, surname);
+                pStatement.setInt(2, id);
+                pStatement.executeUpdate();
+            }
 
+            if (dob != null) {
+                sql = "UPDATE patient SET dob = ? WHERE medical_card_number = ?";
+                pStatement = c.prepareStatement(sql);
+                pStatement.setString(1, formatDate(dob));
+                pStatement.setInt(2, id);
+                pStatement.executeUpdate();
+            }
+
+            if (email != null) {
+                sql = "UPDATE patient SET email = ? WHERE medical_card_number = ?";
+                pStatement = c.prepareStatement(sql);
+                pStatement.setString(1, email);
+                pStatement.setInt(2, id);
+                pStatement.executeUpdate();
+            }
+
+            if (gender != null) {
+                sql = "UPDATE patient SET gender = ? WHERE medical_card_number = ?";
+                pStatement = c.prepareStatement(sql);
+                pStatement.setString(1, gender);
+                pStatement.setInt(2, id);
+                pStatement.executeUpdate();
+            }
+
+            return true;
+        } catch (SQLException update_patient_error) {
+            update_patient_error.printStackTrace();
+            return false;
+        }
+    }
+}
