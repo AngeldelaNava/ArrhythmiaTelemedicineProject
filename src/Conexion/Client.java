@@ -177,41 +177,19 @@ public class Client implements Runnable {
                     int userid = userman.getId(u.getUsername());
                     Doctor d = doctorman.selectDoctorByUserId(userid);
                     List<Patient> patientList = patientman.selectPatientsByDoctorId(doctorman.getId(d.getName()));
-                    Utilities.Communication.sendPatientList(patientList, pw, br);
+                    Utilities.Communication.sendPatientList(patientList, pw, br); //envía lista de pacientes al cliente
                     break;
                 case 3:
-                    int a = Integer.parseInt(br.readLine());
-                    while (a != 0) {
-                        int uid = userman.getId(u.getUsername());
-                        Doctor d3 = doctorman.selectDoctorByUserId(uid);
-                        List<Patient> pList = patientman.selectPatientsByDoctorId(doctorman.getId(d3.getName()));
-                        Utilities.Communication.sendPatientList(pList, pw, br);
-                        int medcard = Integer.parseInt(br.readLine());
-                        Patient p = patientman.selectPatient(medcard);
-                        Utilities.Communication.sendPatient(pw, p);
-                        Patient updatep = Utilities.Communication.receivePatient(br);
-                        patientman.editPatient(updatep.getId(), updatep.getName(), updatep.getLastName(), updatep.getDob(), updatep.getEmail(), updatep.getGender());
-                        a = Integer.parseInt(br.readLine());
-                    }
-                    break;
-                case 4:
                     int userid1 = userman.getId(u.getUsername());
                     Doctor d1 = doctorman.selectDoctorByUserId(userid1);
                     List<Patient> patientList1 = patientman.selectPatientsByDoctorId(doctorman.getId(d1.getName()));
                     Utilities.Communication.sendPatientList(patientList1, pw, br);
-                    int medcard2 = Integer.parseInt(br.readLine());
-                    if (medcard2 == 2) {
-                        option = 2;
-                        break;
-                    } else if (medcard2 == 0) {
-                        break;
-                    }
-                    Utilities.Communication.sendSignal(br, pw, signalman);
+                    Utilities.Communication.sendAllSignals(br, pw, signalman);
                     String filename = br.readLine();
                     ECG s1 = signalman.selectSignalByName(filename);
                     pw.println(s1.toString());
                     break;
-                case 5:
+                case 4:
                     int userid2 = userman.getId(u.getUsername());
                     Doctor d2 = doctorman.selectDoctorByUserId(userid2);
                     List<Patient> patientList2 = patientman.selectPatientsByDoctorId(doctorman.getId(d2.getName()));
