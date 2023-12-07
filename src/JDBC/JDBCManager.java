@@ -75,21 +75,22 @@ public class JDBCManager implements DBManager {
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
+                    + " ECGFile TEXT NOT NULL,"
                     + " patientId INTEGER REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXIST ROLE " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            sql = "CREATE TABLE IF NOT EXISTS ROLE " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " type TEXT NOT NULL)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXIST USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            sql = "CREATE TABLE IF NOT EXISTS USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
-                    + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASACDE ON DELETE CASCADE)";
+                    + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXIST DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            sql = "CREATE TABLE IF NOT EXISTS DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " name TEXT NOT NULL," + " lastname TEXT NOT NULL," + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id))";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXIST PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
-                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patien_id, doctor_id))";
+            sql = "CREATE TABLE IF NOT EXISTS PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
+                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id))";
             stmt.executeUpdate(sql);
             stmt.close();
         } catch (SQLException e) {
@@ -225,7 +226,7 @@ public class JDBCManager implements DBManager {
         }
         return patients;
     }
-    
+
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
         try {
@@ -251,7 +252,6 @@ public class JDBCManager implements DBManager {
         }
         return ecgs;
     }
-
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
@@ -414,6 +414,7 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public void deleteUserByUserId(int id) {
         try {
             String sql = "DELETE FROM User WHERE id = ?";
@@ -525,12 +526,11 @@ public class JDBCManager implements DBManager {
     @Override
     public void addDoctor(Doctor doctor) {
         try {
-            String sql = "INSERT INTO DOCTOR (name, lastname, email, patient_id) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO DOCTOR (name, lastname, email) VALUES (?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, doctor.getName());
             prep.setString(2, doctor.getLastName());
             prep.setString(3, doctor.getEmail());
-            prep.setInt(4, doctor.getUserId());
             prep.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -639,13 +639,13 @@ public class JDBCManager implements DBManager {
 
     public Role selectRoleById(Integer roleid) {
         try {
-            String sql = "SELECT * FROM role WHERE roleid = ?";
+            String sql = "SELECT * FROM role WHERE id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, roleid);
             ResultSet rs = p.executeQuery();
             Role role = null;
             if (rs.next()) {
-                role = new Role(rs.getInt("roleid"), rs.getString("type"));
+                role = new Role(roleid, rs.getString("type"));
             }
             p.close();
             rs.close();
@@ -658,14 +658,13 @@ public class JDBCManager implements DBManager {
     //@Override
 
     public int getId(String username) {
-        String sql1 = "SELECT * FROM users WHERE userName = ?";
+        String sql1 = "SELECT * FROM USER WHERE username = ?";
         int id = 0;
         try {
-            PreparedStatement preparedStatement = c.prepareStatement(sql1);
             PreparedStatement p = c.prepareStatement(sql1);
             p.setString(1, username);
             ResultSet rs = p.executeQuery();
-            id = rs.getInt("userid");
+            id = rs.getInt("id");
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -675,7 +674,7 @@ public class JDBCManager implements DBManager {
     //@Override
     public void createLinkUserRole(int roleId, int userId) {
         try {
-            String sql1 = "INSERT users SET userRoleid = ? WHERE userid = ? ";
+            String sql1 = "UPDATE USER SET role_id = ? WHERE id = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
             pStatement.setInt(1, roleId);
             pStatement.setInt(2, userId);
