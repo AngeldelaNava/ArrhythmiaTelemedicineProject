@@ -63,7 +63,14 @@ public class Communication {
             pw.println(patient.toString());
         }
     }
+    public static void sendAllSignals (PrintWriter pw, BufferedReader br, List<ECG> ecgs){
+        for (ECG ecg : ecgs) {
+            System.out.println(ecg.toString()); // Solo para verificar en la consola
 
+            // Enviar la representación en cadena del paciente al PrintWriter
+            pw.println(ecg.toString());
+        }
+    }
     public static void sendSignal(PrintWriter printWriter, ECG signal) {
         printWriter.println(signal.toString());
     }
@@ -222,7 +229,7 @@ public class Communication {
                             u.setPassword(hash);
                             break;
                         case "role":
-                            u.setRole(data2[j + 1]);
+                            u.setRole_id(Integer.parseInt(data2[j+1]));
                             break;
                         case "userId":
                             u.setId(Integer.parseInt(data2[j + 1]));

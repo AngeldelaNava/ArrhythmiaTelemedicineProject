@@ -47,7 +47,7 @@ public class JDBCManager implements DBManager {
         try {
             Class.forName("org.sqlite.JDBC");
             //here we get the connection
-            this.c = DriverManager.getConnection("jdbc:sqlite:./db/ArrhythmiaTelemedicine.db");
+            this.c = DriverManager.getConnection("jdbc:sqlite:./db/ArrhythmiaTelemedicineProject.db");
             c.createStatement().execute("PRAGMA foreign_keys=ON");
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -225,6 +225,33 @@ public class JDBCManager implements DBManager {
         }
         return patients;
     }
+    
+    public List<ECG> listAllECG(Patient p) {
+        List<ECG> ecgs = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM ECG WHERE patient_id = ? ";
+            PreparedStatement stmt = c.prepareStatement(sql);
+            stmt.setInt(1, p.getId());
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String ecg = rs.getString("ecg");
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate startDate = LocalDate.parse(rs.getString("date"), dtf);
+                String ECGFile = rs.getString("ECGFile"); /////////////////////////////////////////////////////////////////////////
+                ECG ecg1 = new ECG(id, ecg, startDate, ECGFile);
+                ecgs.add(ecg1);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ecgs;
+    }
+
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
@@ -300,7 +327,7 @@ public class JDBCManager implements DBManager {
                         for (int i = 0; i < separatedCadena.length; i++) {
                             values.add(i, Integer.parseInt(separatedCadena[i]));
                         }
-                        s.setEcg(values);
+                        s.setEcg(values.toString());
                     }
                 }
             }
@@ -379,6 +406,17 @@ public class JDBCManager implements DBManager {
     public void deletePatient(int id) {
         try {
             String sql = "DELETE FROM Patient WHERE id = ?";
+            PreparedStatement prep = c.prepareStatement(sql);
+            prep.setInt(1, id);
+            prep.executeUpdate();
+            prep.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void deleteUserByUserId(int id) {
+        try {
+            String sql = "DELETE FROM User WHERE id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, id);
             prep.executeUpdate();

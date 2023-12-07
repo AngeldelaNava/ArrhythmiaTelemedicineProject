@@ -139,14 +139,14 @@ public class Client implements Runnable {
                     System.out.println("You are going to record your ECG signal");
                     Utilities.Communication.recordSignal(p, pw);
                     break;
-                case 3:
+                /*case 3:
                     int userid3 = userman.getId(u.getUsername());
                     Patient p3 = patientman.selectPatientByUserId(userid3);
                     Utilities.Communication.sendAllSignal(br, pw, signalman, p3.getId()); //envía todas las señales ECG asociadas al paciente al cliente
                     String filename = br.readLine();
                     ECG s1 = signalman.selectSignalByName(filename); //selecciona la señak ECG por nombre
                     pw.println(s1.toString()); //envía la representación en acdena de la señal ECG al cliente
-                    break;
+                    break;*/
 
             }
         } catch (IOException ex) {
@@ -184,7 +184,9 @@ public class Client implements Runnable {
                     Doctor d1 = doctorman.selectDoctorByUserId(userid1);
                     List<Patient> patientList1 = patientman.selectPatientsByDoctorId(doctorman.getId(d1.getName()));
                     Utilities.Communication.sendPatientList(patientList1, pw, br);
-                    Utilities.Communication.sendAllSignals(br, pw, signalman);
+                    Patient p1 = patientman.selectPatientByUserId(userid1); //se selecciona al paciente asociado con el id del user
+                    List<ECG> ecgs = signalman.listAllECG(p1);
+                    Utilities.Communication.sendAllSignals(pw, br, ecgs);
                     String filename = br.readLine();
                     ECG s1 = signalman.selectSignalByName(filename);
                     pw.println(s1.toString());
@@ -194,17 +196,9 @@ public class Client implements Runnable {
                     Doctor d2 = doctorman.selectDoctorByUserId(userid2);
                     List<Patient> patientList2 = patientman.selectPatientsByDoctorId(doctorman.getId(d2.getName()));
                     Utilities.Communication.sendPatientList(patientList2, pw, br);
-                    int medcard3 = Integer.parseInt(br.readLine());
-                    if (medcard3 == 2) {
-                        option = 2;
-                        break;
-                    } else if (medcard3 == 0) {
-                        break;
-                    }
-                    Patient pToDelete = patientman.selectPatient(medcard3);
+                    Patient pToDelete = patientman.selectPatient(userid2);
                     patientman.deletePatient(pToDelete.getId());
-                    String medcard = "" + medcard3;
-                    userman.deleteUserByUserName(medcard);
+                    userman.deleteUserByUserId(userid2);
                     break;
             }
         } catch (IOException ex) {
