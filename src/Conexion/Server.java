@@ -4,8 +4,10 @@
  */
 package Conexion;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -22,38 +24,41 @@ import java.util.logging.Logger;
  */
 public class Server {
 
-    public static Socket socketClient; //maneja la conexión con el cliente
+    //public static Socket socketClient; //maneja la conexión con el cliente
     public static ServerSocket serverSocketClient; //escucha las conexiones en el puerto 9000
     public static Client client;
     public static int contador; //para saber cuánto clientes hay conextados
     public static List<Thread> clientsThreadsList = new ArrayList(); //almacena los hilos de clientes
 
     public static void main(String[] args) {
-
         try {
             serverSocketClient = new ServerSocket(9000);
 
-            StopServer SThread = new StopServer();
-            Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
+            //StopServer SThread = new StopServer();
+            //Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
 
             //stopServer.start();
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
-                socketClient = serverSocketClient.accept();
-                ObjectInputStream in = new ObjectInputStream(socketClient.getInputStream());
-                Thread clientThread = new Thread((Client) in.readObject());
+                Socket socketClient = serverSocketClient.accept();
+                System.out.println("Client connected!");
+                client = new Client(socketClient);
+                //ObjectInputStream in = new ObjectInputStream(socketClient.getInputStream());
+                BufferedReader br = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+                String option = br.readLine();  // Leer la opción del menú
+                System.out.println("Option received from client: " + option);
+                Thread clientThread = new Thread(client);
 
-                //clientThread.start();
+                clientThread.start();
                 clientsThreadsList.add(clientThread);
                 contador++;
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             ReleaseResourcesServerClient(serverSocketClient);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            ReleaseResourcesServerClient(serverSocketClient);
         }
     }
+    
+    
 
     public static void ExitServer() {//para cerrar el server pulsar x
         Scanner sc = new Scanner(System.in);

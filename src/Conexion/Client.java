@@ -11,11 +11,13 @@ import Pojos.Patient;
 import Pojos.Role;
 import Pojos.User;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
@@ -89,11 +91,11 @@ public class Client implements Runnable, Serializable {
     }
 
     public static void menu(InputStream inputStream, OutputStream outputStream, BufferedReader br, PrintWriter pw, JDBCManager manager) {
-        int option = 1;
+        int option=1;
         exit = false;
         do {
             try {
-                BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
+                //BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@                 Welcome.                                         @@");
@@ -103,12 +105,14 @@ public class Client implements Runnable, Serializable {
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.print("Select an option: ");
-                option = Integer.parseInt(consola.readLine());
+                option = Integer.parseInt(br.readLine());
                 switch (option) {
                     case 1:
+                        pw.println("1");
                         Utilities.ClientMethods.registerPatient(br, pw, manager);
                         break;
                     case 2:
+                        pw.println("2");
                         User user = Utilities.ClientMethods.login(br, pw, manager); //user hace log in
                         if (user.getRole_id() == 1) { //es paciente
                             pw.println("patient"); //envia patient al client
@@ -123,6 +127,7 @@ public class Client implements Runnable, Serializable {
                         }
                         break;
                     case 0:
+                        pw.println("0");
                         Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
                         break;
                 }
