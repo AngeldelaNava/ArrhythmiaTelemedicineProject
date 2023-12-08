@@ -591,8 +591,8 @@ public class JDBCManager implements DBManager {
                 String name = rs.getString("name");
                 String lastName = rs.getString("lastname");
                 String email = rs.getString("email");
-                int patientId = rs.getInt("patient_id");
-                Doctor doctor = new Doctor(id, name, lastName, email, patientId);
+                int userId = rs.getInt("user_id");
+                Doctor doctor = new Doctor(id, name, lastName, email, userId);
                 doctors.add(doctor);
             }
         } catch (SQLException ex) {
@@ -712,11 +712,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
-    public void createLinkDoctorPatient(int medCardNumber, int doctorId) {
+    public void createLinkDoctorPatient(int patientId, int doctorId) {
         try {
-            String sql = "INSERT INTO doctor_patient (patient_id, doctor_id) VALUES (?,?)";
+            String sql = "INSERT INTO PATIENTDOCTOR (patient_id, doctor_id) VALUES (?,?)";
             PreparedStatement pStatement = c.prepareStatement(sql);
-            pStatement.setInt(1, medCardNumber);
+            pStatement.setInt(1, patientId);
             pStatement.setInt(2, doctorId);
             pStatement.executeUpdate();
             pStatement.close();
@@ -775,21 +775,21 @@ public class JDBCManager implements DBManager {
     public Patient selectPatientByUserId(Integer userId) {
         try {
             //Date date;
-            String sql = "SELECT * FROM patient WHERE userid = ?";
+            String sql = "SELECT * FROM PATIENT WHERE user_id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, userId);
             ResultSet rs = p.executeQuery();
             Patient p1 = new Patient();
             if (rs.next()) {
-                p1.setName(rs.getString("Name"));
-                p1.setLastName(rs.getString("LastName"));
+                p1.setName(rs.getString("name"));
+                p1.setLastName(rs.getString("lastname"));
                 //Se utiliza esto para convertir una Date en una LocalDate
-                java.sql.Date sqlDate = rs.getDate("Date of Birth");
+                java.sql.Date sqlDate = rs.getDate("date_of_birth");
                 LocalDate localDate = sqlDate.toLocalDate();
                 p1.setDob(localDate);
-                p1.setEmail(rs.getString("Email"));
-                p1.setGender(rs.getString("Gender"));
-                p1.setId(rs.getInt("patientId"));
+                p1.setEmail(rs.getString("email"));
+                p1.setGender(rs.getString("gender"));
+                p1.setId(rs.getInt("id"));
                 p1.setId(userId);
 
             }
@@ -804,7 +804,7 @@ public class JDBCManager implements DBManager {
     //@Override
 
     public List<Doctor> selectAllDoctors() throws SQLException {
-        String sql = "SELECT * FROM doctor";
+        String sql = "SELECT * FROM DOCTOR";
         PreparedStatement p = c.prepareStatement(sql);
 
         ResultSet rs = p.executeQuery();
@@ -819,16 +819,16 @@ public class JDBCManager implements DBManager {
 
     public Doctor selectDoctorByUserId(Integer userId) {
         try {
-            String sql = "SELECT * FROM doctor WHERE userid = ?";
+            String sql = "SELECT * FROM DOCTOR WHERE user_id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, userId);
             ResultSet rs = p.executeQuery();
             Doctor d = new Doctor();
             if (rs.next()) {
-                d.setDoctorId(rs.getInt("doctorId"));
-                d.setName(rs.getString("Name"));
-                d.setLastName(rs.getString("lastName"));
-                d.setEmail(rs.getString("Email"));
+                d.setDoctorId(rs.getInt("id"));
+                d.setName(rs.getString("name"));
+                d.setLastName(rs.getString("lastname"));
+                d.setEmail(rs.getString("email"));
                 d.setUserId(userId);
             }
             p.close();
@@ -842,7 +842,7 @@ public class JDBCManager implements DBManager {
 
     public List<Patient> selectPatientsByDoctorId(int doctorId) {
         try {
-            String sql = "SELECT * FROM doctor_patient WHERE doctor_id = ?";
+            String sql = "SELECT * FROM PATIENTDOCTOR WHERE doctor_id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, doctorId);
             ResultSet rs = p.executeQuery();
@@ -863,13 +863,13 @@ public class JDBCManager implements DBManager {
     public Patient selectPatient(Integer id) {
         try {
             LocalDate date;
-            String sql = "SELECT * FROM patient WHERE id = ?";
+            String sql = "SELECT * FROM PATIENT WHERE id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             Patient patient = null;
             if (rs.next()) {
-                patient = new Patient(rs.getString("name"), rs.getString("lastName"), LocalDate.parse(rs.getString("dob")),
+                patient = new Patient(rs.getString("name"), rs.getString("lastname"), LocalDate.parse(rs.getString("date_of_birth")),
                         rs.getString("email"), rs.getString("gender"), rs.getInt("user_id"));
             }
             p.close();

@@ -337,19 +337,19 @@ public class Communication {
         }
     }
 
-    public static List<String> ShowSignals(BufferedReader bf, PrintWriter pw) {
-        try {
-            List<String> filenames = new ArrayList();
+    public static List<ECG> ShowSignals(JDBCManager manager, Patient p) {
+        //try {
+        List<ECG> ecgs = manager.listAllECG(p);
 
-            int size = Integer.parseInt(bf.readLine());
+        /*int size = Integer.parseInt(bf.readLine());
             for (int i = 0; i < size; i++) {
                 filenames.add(bf.readLine());
-            }
-            return filenames;
-        } catch (IOException ex) {
+            }*/
+        return ecgs;
+        /*} catch (IOException ex) {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        }*/
+        //return null;
     }
 
     public static List<String> receivePatientList(BufferedReader bf) {

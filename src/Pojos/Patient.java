@@ -154,7 +154,7 @@ public class Patient {
     @Override
     public String toString() {
         return "Patient{" + ", name=" + name + ", lastName=" + lastName
-                + ", dob=" + dob + ", gender=" + gender + ", email=" + email
+                + ", date of birth=" + dob + ", gender=" + gender + ", email=" + email
                 + "}";
     }
 }
