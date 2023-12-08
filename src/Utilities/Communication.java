@@ -5,6 +5,10 @@
 package Utilities;
 //import BITalino.*;
 
+import BITalino.BITalino;
+import BITalino.BITalinoException;
+import BITalino.BitalinoDemo;
+import BITalino.Frame;
 import Pojos.*;
 import java.io.*;
 import java.net.Socket;
@@ -15,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.bluetooth.RemoteDevice;
 
 /**
  *
@@ -79,7 +84,7 @@ public class Communication {
         printWriter.println(user.toString());
     }
 
-    public static Patient receivePatient(BufferedReader bf) {
+    /*public static Patient receivePatient(BufferedReader bf) {
         Patient p = new Patient();
 
         try {
@@ -125,9 +130,9 @@ public class Communication {
             return null;
         }
 
-    }
+    }*/
 
-    public static Doctor receiveDoctor(BufferedReader bufferReader) {
+    /*public static Doctor receiveDoctor(BufferedReader bufferReader) {
         Doctor d = new Doctor();
         try {
             String line = bufferReader.readLine();
@@ -161,7 +166,7 @@ public class Communication {
             Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
         }
         return d;
-    }
+    }*/
 
     public static ECG receiveSignal(BufferedReader br) {
         ECG s = new ECG();
@@ -247,25 +252,22 @@ public class Communication {
     }
 
     public static void recordSignal(Patient p, PrintWriter pw) {
-        /*Frame[] frame;
+        Frame[] frame;
         BITalino bitalino = null;
-        Signal s = new Signal();
+        ECG s = new ECG();
         ArrayList<Integer> ecg_vals = new ArrayList<Integer>();
-        ArrayList<Integer> emg_vals = new ArrayList<Integer>();
         try {
             bitalino = new BITalino();
             Vector<RemoteDevice> devices = bitalino.findDevices();
             System.out.println(devices);
 
-            String macAddress = p.getMacAddress();
+            String macAddress = "98:D3:51:FD:9C:ED";
 
             bitalino.open(macAddress, 100);
 
-            int[] channelsToAcquire = {1, 2}; //for EMG and ECG
+            int[] channelsToAcquire = {1, 2}; //2 FOR ECG
             bitalino.start(channelsToAcquire);
 
-            //Read in total 10000000 times --> por que elegimos este num
-            //Each time read a block of 10 samples to make the trials easier, but we plan to change it
             int block_size = 16;
 
             // Start loop to calculate time to send signal TODO
@@ -273,15 +275,9 @@ public class Communication {
                 frame = bitalino.read(block_size);
 
                 for (int i = 0; i < frame.length; i++) {
-                    //pw.println(frame[i].analog[0]);
+                    pw.println(frame[i].analog[0]);
                     System.out.println(frame[i].analog[0]);
                     ecg_vals.add(frame[i].analog[0]);
-                }
-
-
-                for (int a = 0; a < frame.length; a++) {
-                    System.out.println(frame[a].analog[1]);
-                    emg_vals.add(frame[a].analog[1]);
                 }
 
             }
@@ -289,10 +285,6 @@ public class Communication {
             pw.println(ecg_vals.size());
             for (int k = 0; k < ecg_vals.size(); k++) {
                 pw.println(ecg_vals.get(k));
-            }
-            pw.println(emg_vals.size());
-            for (int m = 0; m < emg_vals.size(); m++) {
-                pw.println(emg_vals.get(m));
             }
 
             System.out.println("Ok");
@@ -308,7 +300,7 @@ public class Communication {
             } catch (BITalinoException ex) {
                 Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }*/
+        }
     }
 
     public static List<String> ShowSignals(BufferedReader bf, PrintWriter pw) {
