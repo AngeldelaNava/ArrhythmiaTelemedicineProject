@@ -6,9 +6,10 @@ package Utilities;
 //import BITalino.*;
 
 import BITalino.BITalino;
+import BITalino.BITalinoDemo;
 import BITalino.BITalinoException;
-import BITalino.BitalinoDemo;
 import BITalino.Frame;
+import JDBC.JDBCManager;
 import Pojos.*;
 import java.io.*;
 import java.net.Socket;
@@ -50,16 +51,19 @@ public class Communication {
         return socket;
     }
 
-    public static void sendDoctor(PrintWriter pw, Doctor doctor) {
+    public static void sendDoctor(PrintWriter pw, Doctor doctor, JDBCManager manager) {
         pw.println(doctor.toString());
+        manager.addDoctor(doctor);
         System.out.println("doctor sended");
     }
 
-    public static void sendPatient(PrintWriter pw, Patient patient) {
+    public static void sendPatient(PrintWriter pw, Patient patient, JDBCManager manager) {
         System.out.println(patient.toString()); //SE MANDA BIEN
+        manager.addPatient(patient);
         pw.println(patient.toString());
 
     }
+
     public static void sendPatientList(List<Patient> patientList, PrintWriter pw, BufferedReader br) throws IOException {
         for (Patient patient : patientList) {
             System.out.println(patient.toString()); // Solo para verificar en la consola
@@ -68,7 +72,8 @@ public class Communication {
             pw.println(patient.toString());
         }
     }
-    public static void sendAllSignals (PrintWriter pw, BufferedReader br, List<ECG> ecgs){
+
+    public static void sendAllSignals(PrintWriter pw, BufferedReader br, List<ECG> ecgs) {
         for (ECG ecg : ecgs) {
             System.out.println(ecg.toString()); // Solo para verificar en la consola
 
@@ -76,8 +81,10 @@ public class Communication {
             pw.println(ecg.toString());
         }
     }
-    public static void sendSignal(PrintWriter printWriter, ECG signal) {
+
+    public static void sendSignal(PrintWriter printWriter, ECG signal, JDBCManager manager, Patient p) {
         printWriter.println(signal.toString());
+        manager.addECG(signal, p);
     }
 
     public static void sendUser(PrintWriter printWriter, User user) {
@@ -132,7 +139,7 @@ public class Communication {
 
     }*/
 
-    /*public static Doctor receiveDoctor(BufferedReader bufferReader) {
+ /*public static Doctor receiveDoctor(BufferedReader bufferReader) {
         Doctor d = new Doctor();
         try {
             String line = bufferReader.readLine();
@@ -167,7 +174,6 @@ public class Communication {
         }
         return d;
     }*/
-
     public static ECG receiveSignal(BufferedReader br) {
         ECG s = new ECG();
         try {
@@ -234,7 +240,7 @@ public class Communication {
                             u.setPassword(hash);
                             break;
                         case "role":
-                            u.setRole_id(Integer.parseInt(data2[j+1]));
+                            u.setRole_id(Integer.parseInt(data2[j + 1]));
                             break;
                         case "userId":
                             u.setId(Integer.parseInt(data2[j + 1]));
@@ -251,8 +257,8 @@ public class Communication {
         return u;
     }
 
-    public static void recordSignal(Patient p, PrintWriter pw) {
-        Frame[] frame;
+    public static void recordSignal(Patient p, PrintWriter pw, JDBCManager manager) {
+        Frame[] frame = null;
         BITalino bitalino = null;
         ECG s = new ECG();
         ArrayList<Integer> ecg_vals = new ArrayList<Integer>();
@@ -261,11 +267,27 @@ public class Communication {
             Vector<RemoteDevice> devices = bitalino.findDevices();
             System.out.println(devices);
 
-            String macAddress = "98:D3:51:FD:9C:ED";
+            String macAddress1 = "98:D3:51:FD:9C:ED";
+            String macAddress2 = "20:16:07:18:17:86";
+            String macAddress = null;
+            int option;
+            do {
+                option = UtilitiesRead.readInt("1. 98:D3:51:FD:9C:ED\n2. 20:16:07:18:17:86\nChoose Bitalino 1 or 2: ");
+                switch (option) {
+                    case 1:
+                        macAddress = macAddress1;
+                        break;
+                    case 2:
+                        macAddress = macAddress2;
+                        break;
+                    default:
+                        System.out.println("Invalid value");
+                }
+            } while (option != 1 && option != 2);
 
             bitalino.open(macAddress, 100);
 
-            int[] channelsToAcquire = {1, 2}; //2 FOR ECG
+            int[] channelsToAcquire = {2}; //2 FOR ECG
             bitalino.start(channelsToAcquire);
 
             int block_size = 16;
@@ -274,31 +296,43 @@ public class Communication {
             for (int j = 0; j < 750; j++) {
                 frame = bitalino.read(block_size);
 
-                for (int i = 0; i < frame.length; i++) {
-                    pw.println(frame[i].analog[0]);
-                    System.out.println(frame[i].analog[0]);
-                    ecg_vals.add(frame[i].analog[0]);
+                for (Frame frame1 : frame) {
+                    pw.println(frame1.analog[0]);
+                    System.out.println(frame1.analog[0]);
+                    ecg_vals.add(frame1.analog[0]);
                 }
 
             }
             bitalino.stop();
+            String record = "[";
+            for (int i = 0; i < frame.length; i++) {
+                record += frame[i].analog[0];
+                if (i != (frame.length - 1)) {
+                    record += "; ";
+                }
+            }
+            record += "]";
             pw.println(ecg_vals.size());
             for (int k = 0; k < ecg_vals.size(); k++) {
                 pw.println(ecg_vals.get(k));
             }
-
+            ECG ecg = new ECG();
+            ecg.setEcg(record);
+            ecg.setStartDate(LocalDate.now());
+            //////HACER ECGFILE
+            sendSignal(pw, ecg, manager, p);
             System.out.println("Ok");
         } catch (BITalinoException ex) {
-            Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Throwable ex) {
-            Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 if (bitalino != null) {
                     bitalino.close();
                 }
             } catch (BITalinoException ex) {
-                Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

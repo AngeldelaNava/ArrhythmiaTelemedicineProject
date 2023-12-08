@@ -9,13 +9,17 @@ import Pojos.Doctor;
 import Pojos.Patient;
 import Pojos.Role;
 import Pojos.User;
-import static Utilities.UtilitiesRead.readDate;
+import static Utilities.UtilitiesRead.*;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -76,7 +80,7 @@ public class ClientMethods {
         String email = sc.next();
         d.setEmail(email);
         System.out.println("Let's proceed with the registration, the username and password:");
-        Utilities.Communication.sendDoctor(pw, d);
+        Utilities.Communication.sendDoctor(pw, d, manager);
         User user = new User();
         System.out.print("Role: \n");
         System.out.print("1: Patient: \n");
@@ -94,8 +98,9 @@ public class ClientMethods {
         manager.addUser(user);
     }
 
-    public static void registerPatient(BufferedReader br, PrintWriter pw, JDBCManager manager) throws SQLException {
-        /*try {
+    public static void register(BufferedReader br, PrintWriter pw, JDBCManager manager) throws SQLException {
+        try {
+            /*try {
             //autogenerate username
             Patient p = Utilities.Communication.receivePatient(br); //receivePatient and doctor deberia devolver un objeto paciente o doctor
             String username = Integer.toString(p.getId());
@@ -106,8 +111,8 @@ public class ClientMethods {
             random = SecureRandom.getInstanceStrong();
             StringBuilder sb = new StringBuilder(length);
             for (int i = 0; i < length; i++) {
-                int indexRandom = random.nextInt(symbols.length);
-                sb.append(symbols[indexRandom]);
+            int indexRandom = random.nextInt(symbols.length);
+            sb.append(symbols[indexRandom]);
             }
             String password = sb.toString();
             //generate the hash
@@ -126,68 +131,116 @@ public class ClientMethods {
             List<Doctor> doctorl = doctorman.selectAllDoctors();
             pw.println(doctorl.size());
             for (int i = 0; i < doctorl.size(); i++) {
-                pw.println(doctorl.get(i));
+            pw.println(doctorl.get(i));
             }
             int doctorid = Integer.parseInt(br.readLine());
             patientman.createLinkDoctorPatient(p.getId(), doctorid);
-        } catch (NoSuchAlgorithmException ex) {
+            } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
             pw.println("Patient not registered");
-        } catch (IOException ex) {
+            } catch (IOException ex) {
             Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        Scanner sc = new Scanner(System.in);
-        Patient p = new Patient();
+            }*/
+            Scanner sc = new Scanner(System.in);
+            Patient p = new Patient();
+            Doctor d = new Doctor();
+            User user = new User();
 
-        System.out.print("Name: ");
-        String name = sc.next();
-        p.setName(name);
+            System.out.println("Let's proceed with the registration:");
+            //Utilities.Communication.sendPatient(pw, p);
+            String roleString = readString("1. Patient\n2. Doctor\nRole: ");
+            int role = Integer.parseInt(roleString);
+            user.setRole_id(role);
+            //System.out.print("Username: ");
+            //String username = sc.next();
+            String username = readString("Username: ");
+            user.setUsername(username);
+            //System.out.print("Password: ");
+            //String password = sc.next();
+            String password = readString("Password: ");
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(password.getBytes());
+            byte[] hash = md.digest();
+            user.setPassword(hash);
+            Utilities.Communication.sendUser(pw, user);
+            manager.addUser(user);
+            User u = manager.getUser(username);
+            String name, lastName, gender, birthdate, email;
+            switch (role) {
+                case 1:
+                    //System.out.print("Name: ");
+                    //String name = sc.next();
+                    name = readString("Name: ");
+                    p.setName(name);
 
-        System.out.print("LastName: ");
-        String lastName = sc.next();
-        p.setLastName(lastName);
+                    //System.out.print("LastName: ");
+                    //String lastName = sc.next();
+                    lastName = readString("Last Name: ");
+                    p.setLastName(lastName);
 
-        System.out.print("Gender: ");
-        String gender = sc.next();
-        do {
-            if (gender.equalsIgnoreCase("male")) {
-                gender = "Male";
-            } else if (gender.equalsIgnoreCase("female")) {
-                gender = "Female";
-            } else {
-                System.out.print("Not a valid gender. Please introduce a gender (Male or Female): ");
-                gender = sc.next();
+                    //System.out.print("Gender: ");
+                    //String gender = sc.next();
+                    gender = readString("Gender (male OR female): ");
+                    do {
+                        if (gender.equalsIgnoreCase("male")) {
+                            gender = "Male";
+                        } else if (gender.equalsIgnoreCase("female")) {
+                            gender = "Female";
+                        } else {
+                            //System.out.print("Not a valid gender. Please introduce a gender (male or female): ");
+                            //gender = sc.next();
+                            gender = readString("Not a valid gender.\nGender (male OR female): ");
+                        }
+                    } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
+                    p.setGender(gender);
+
+                    //System.out.print("Date of birth [yyyy-mm-dd]: ");
+                    //String birthdate = sc.next();
+                    birthdate = readString("Introduce the date of birth [yyyy-mm-dd]: ");
+                    //System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
+                    //birthdate = sc.next();
+                    LocalDate bdate = readDate(birthdate);
+                    p.setDob(bdate);
+
+                    //System.out.print("Email: ");
+                    //String email = sc.next();
+                    email = readString("Email: ");
+                    p.setEmail(email);
+
+                    p.setUserId(u.getId());
+                    Utilities.Communication.sendPatient(pw, p, manager);
+                    //manager.addPatient(p);
+                    break;
+                case 2:
+                    name = readString("Name: ");
+                    d.setName(name);
+
+                    lastName = readString("Last Name: ");
+                    d.setLastName(lastName);
+
+                    email = readString("Email: ");
+                    d.setEmail(email);
+
+                    d.setUserId(u.getId());
+                    Utilities.Communication.sendDoctor(pw, d, manager);
+                //manager.addDoctor(d);
             }
-        } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
-        p.setGender(gender);
 
-        System.out.print("Date of birth [yyyy-mm-dd]: ");
-        String birthdate = sc.next();
-        LocalDate bdate;
-        System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
-        birthdate = sc.next();
-        bdate = readDate(birthdate);
-        p.setDob(bdate);
-
-        System.out.print("Email: ");
-        String email = sc.next();
-        p.setEmail(email);
-
-        System.out.println("Let's proceed with the registration:");
-        Utilities.Communication.sendPatient(pw, p);
-        User user = new User();
-        System.out.print("Role: \n");
-        System.out.print("1: Patient: \n");
-        System.out.print("2: Doctor: \n");
-        int role = Integer.parseInt(sc.next());
-        user.setRole_id(role);
-        System.out.print("Username: ");
-        String username = sc.next();
-        user.setUsername(username);
-        System.out.print("Password: ");
-        String password = sc.next();
-        byte[] passwordBytes = password.getBytes();
-        user.setPassword(passwordBytes);
+            //p.setUserId(u.getId());
+            //manager.add //manager.addPatient(p);
+            //List<Patient> patients = manager.listAllPatients();
+            /*for(Patient patient : patients){
+                if (p.getName() == patient.getName() &&
+                        p.getLastName() == patient.getLastName() &&
+                        p.getEmail() == patient.getEmail() &&
+                        p.getGender() == patient.getGender() &&
+                        p.getDob() == patient.getDob()) {
+                    user
+                }
+            }*/
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static User login(BufferedReader bf, PrintWriter pw, JDBCManager userman) {

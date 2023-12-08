@@ -53,6 +53,7 @@ public class UtilitiesRead {
                 return dob;
             } catch (DateTimeException e) {
                 System.out.println("Incorrect date");
+                birthdate = UtilitiesRead.readString("Introduce the date of birth [yyyy-mm-dd]: ");
             }
         }
     }

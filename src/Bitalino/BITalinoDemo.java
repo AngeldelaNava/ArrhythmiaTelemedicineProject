@@ -13,7 +13,7 @@ import javax.bluetooth.RemoteDevice;
  *
  * @author maria
  */
-public class BitalinoDemo {
+public class BITalinoDemo {
 
     private static Frame[] frames;
     private static String signalData = "";
@@ -42,17 +42,17 @@ public class BitalinoDemo {
             bitalino.stop();
 
         } catch (BITalinoException ex) {
-            Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Throwable ex) {
-            Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (bitalino != null) {
                 try {
                     bitalino.close();
                 } catch (BITalinoException ex) {
-                    Logger.getLogger(BitalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(BITalinoDemo.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }

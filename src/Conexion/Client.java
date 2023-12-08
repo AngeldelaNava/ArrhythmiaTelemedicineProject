@@ -10,14 +10,13 @@ import Pojos.ECG;
 import Pojos.Patient;
 import Pojos.Role;
 import Pojos.User;
+import static Utilities.Communication.*;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
@@ -81,7 +80,8 @@ public class Client implements Runnable, Serializable {
 
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            //BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter pw = new PrintWriter(outputStream, true);
             menu(inputStream, outputStream, br, pw, manager);
 
@@ -91,11 +91,11 @@ public class Client implements Runnable, Serializable {
     }
 
     public static void menu(InputStream inputStream, OutputStream outputStream, BufferedReader br, PrintWriter pw, JDBCManager manager) {
-        int option=1;
+        int option = 1;
         exit = false;
         do {
             try {
-                //BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
+                BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@                 Welcome.                                         @@");
@@ -105,11 +105,11 @@ public class Client implements Runnable, Serializable {
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.print("Select an option: ");
-                option = Integer.parseInt(br.readLine());
+                option = Integer.parseInt(consola.readLine());
                 switch (option) {
                     case 1:
                         pw.println("1");
-                        Utilities.ClientMethods.registerPatient(br, pw, manager);
+                        Utilities.ClientMethods.register(br, pw, manager);
                         break;
                     case 2:
                         pw.println("2");
@@ -117,12 +117,12 @@ public class Client implements Runnable, Serializable {
                         if (user.getRole_id() == 1) { //es paciente
                             pw.println("patient"); //envia patient al client
                             Patient p = manager.selectPatientByUserId(user.getId()); //selecciona paciente asociado al usuario userId=Id de la clase user
-                            Utilities.Communication.sendPatient(pw, p); //envía la información del paciente al cliente
+                            Utilities.Communication.sendPatient(pw, p, manager); //envía la información del paciente al cliente
                             patientMenu(user, br, pw, manager); //menu paciente
                         } else if (user.getRole_id() == 2) { //es medico
                             pw.println("doctor"); //envía doctor al client
                             Doctor d = manager.selectDoctorByUserId(user.getId()); //selecciona doctor asociado a usuario
-                            Utilities.Communication.sendDoctor(pw, d); //envia la inforamcion del doctor al cliente
+                            Utilities.Communication.sendDoctor(pw, d, manager); //envia la inforamcion del doctor al cliente
                             doctorMenu(user, br, pw, manager); //menu doctor
                         }
                         break;
@@ -140,29 +140,39 @@ public class Client implements Runnable, Serializable {
     }
 
     public static void patientMenu(User u, BufferedReader br, PrintWriter pw, JDBCManager manager) {
-
-        int option = 1;
+        Patient p = manager.selectPatientByUserId(u.getId());
+        BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
+        int option;
         try {
-            option = Integer.parseInt(br.readLine());
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("@@                                                                  @@");
+            System.out.println("@@                 0. Exit                                          @@");
+            System.out.println("@@                 1. Record new Signal                             @@");
+            System.out.println("@@                 2. View my Signals                               @@");
+            System.out.println("@@                 3. Assign to a new doctor                        @@");
+            System.out.println("@@                                                                  @@");
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.print("Select an option: ");
+            option = Integer.parseInt(consola.readLine());
             switch (option) {
                 case 0:
                     exit = true;
                     Server.ReleaseClientThread(socket);
                     break;
                 case 1:
-                    int userid1 = manager.getId(u.getUsername()); //lee ID del user
+                    /*int userid1 = manager.getId(u.getUsername()); //lee ID del user
                     Patient p1 = manager.selectPatientByUserId(userid1); //se selecciona al paciente asociado con el id del user
                     ECG s = Utilities.Communication.receiveSignal(br); //recive una señal ECG del cliente
                     s.CreateECGFilename(p1.getName()); //crea nombre de archivo para la señal ECG
                     s.StartDate(); //se inicia fecha
                     s.StoreECGinFile(p1.getName()); //almacena la señal ECG
-                    manager.addECG(s, p1); //se añade la señal ECG al paciente
+                    manager.addECG(s, p1); //se añade la señal ECG al paciente*/
                     break;
                 case 2:
-                    int userid = manager.getId(u.getUsername()); //lee ID del user
+                    /*int userid = manager.getId(u.getUsername()); //lee ID del user
                     Patient p = manager.selectPatientByUserId(userid); //se selecciona al paciente asociado con el id del user
                     System.out.println("You are going to record your ECG signal");
-                    Utilities.Communication.recordSignal(p, pw);
+                    Utilities.Communication.recordSignal(p, pw);*/
                     break;
                 /*case 3:
                     int userid3 = userman.getId(u.getUsername());
@@ -172,7 +182,8 @@ public class Client implements Runnable, Serializable {
                     ECG s1 = signalman.selectSignalByName(filename); //selecciona la señak ECG por nombre
                     pw.println(s1.toString()); //envía la representación en acdena de la señal ECG al cliente
                     break;*/
-
+                case 3:
+                    recordSignal(p, pw, manager);
             }
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -191,10 +202,22 @@ public class Client implements Runnable, Serializable {
     }
 
     public static void doctorMenu(User u, BufferedReader br, PrintWriter pw, JDBCManager manager) {
-        int option = 1;
+        BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("@@                                                                  @@");
+        System.out.println("@@                 0. Exit                                          @@");
+        System.out.println("@@                 1. View data from one of my patients             @@");
+        System.out.println("@@                 2. View signal from one of my patients           @@");
+        System.out.println("@@                 3. List all my patients                          @@");
+        System.out.println("@@                 4. Assign one patient                            @@");
+        System.out.println("@@                                                                  @@");
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.print("Select an option: ");
+        int option;
 
         try {
-            option = Integer.parseInt(br.readLine());
+            option = Integer.parseInt(consola.readLine());
             switch (option) {
                 case 0:
                     exit = true;
