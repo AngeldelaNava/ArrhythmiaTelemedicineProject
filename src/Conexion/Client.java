@@ -44,6 +44,7 @@ public class Client implements Runnable, Serializable {
 
     public Client(Socket socket) {
         this.socket = socket;
+        manager=new JDBCManager();
     }
 
     public static void main(String[] args) {
@@ -62,14 +63,7 @@ public class Client implements Runnable, Serializable {
 
     @Override
     public void run() {
-        manager = new JDBCManager();
         manager.connect();
-        //Connection c = manager.getConnection();
-        /*userman = manager.getUserManager();
-        roleman = manager.getRoleManager();
-        patientman = manager.getPatientManager();
-        doctorman = manager.getDoctorManager();
-        signalman = manager.getSignalManager();*/
         manager.createTables(); //creo las tablas
         createRoles(manager); //establezco los tipos de role que puede haber
         Utilities.ClientMethods.firstlogin(manager);
@@ -92,10 +86,9 @@ public class Client implements Runnable, Serializable {
     }
 
     public static void menu(InputStream inputStream, OutputStream outputStream, BufferedReader br, PrintWriter pw, JDBCManager manager) {
-        int option = 1;
         exit = false;
-        do {
-            try {
+        try {
+            do {
                 BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.println("@@                                                                  @@");
@@ -106,7 +99,7 @@ public class Client implements Runnable, Serializable {
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.print("Select an option: ");
-                option = Integer.parseInt(consola.readLine());
+                int option = Integer.parseInt(consola.readLine());
                 switch (option) {
                     case 1:
                         pw.println("1");
@@ -132,12 +125,10 @@ public class Client implements Runnable, Serializable {
                         Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
                         break;
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } while (option != 0);
+            } while (true);
+        } catch (Exception ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static void patientMenu(User u, BufferedReader br, PrintWriter pw, JDBCManager manager) {
@@ -264,121 +255,116 @@ public class Client implements Runnable, Serializable {
             System.out.println("@@                 4. Assign one patient                            @@");
             System.out.println("@@                                                                  @@");
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-            System.out.print("Select an option: ");
 
-            try {
-                option = Integer.parseInt(consola.readLine());
-                switch (option) {
-                    case 0:
-                        exit = true;
-                        break;
-                    case 1:
+            option = Utilities.UtilitiesRead.readInt("Choose an option");
+            switch (option) {
+                case 0:
+                    exit = true;
+                    break;
+                case 1:
+                    for (Patient patient : patients) {
+                        System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
+                    }
+                    boolean check = false;
+                    Patient p = null;
+                    do {
+                        int id = readInt("Select one ID: ");
                         for (Patient patient : patients) {
-                            System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
-                        }
-                        boolean check = false;
-                        Patient p = null;
-                        do {
-                            int id = readInt("Select one ID: ");
-                            for (Patient patient : patients) {
-                                if (id == patient.getId()) {
-                                    p = patient;
-                                    check = true;
-                                }
+                            if (id == patient.getId()) {
+                                p = patient;
+                                check = true;
                             }
-                        } while (!check);
-                        System.out.println(p.toString());
-
-                        //Utilities.ClientMethods.registerDoctor(br, pw, manager);
-                        break;
-                    case 2:
+                        }
+                    } while (!check);
+                    System.out.println(p.toString());
+                    
+                    //Utilities.ClientMethods.registerDoctor(br, pw, manager);
+                    break;
+                case 2:
+                    for (Patient patient : patients) {
+                        System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
+                    }
+                    boolean check1 = false;
+                    Patient p1 = null;
+                    do {
+                        int id = readInt("Select one ID: ");
                         for (Patient patient : patients) {
-                            System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
-                        }
-                        boolean check1 = false;
-                        Patient p1 = null;
-                        do {
-                            int id = readInt("Select one ID: ");
-                            for (Patient patient : patients) {
-                                if (id == patient.getId()) {
-                                    p1 = patient;
-                                    check1 = true;
-                                }
+                            if (id == patient.getId()) {
+                                p1 = patient;
+                                check1 = true;
                             }
-                        } while (!check1);
-
-                        List<ECG> signals = ShowSignals(manager, p1);
+                        }
+                    } while (!check1);
+                    
+                    List<ECG> signals = ShowSignals(manager, p1);
+                    for (ECG signal : signals) {
+                        System.out.println("ID: " + signal.getId() + ", Date: " + signal.getStartDate().toString());
+                    }
+                    boolean check2 = false;
+                    ECG ecg = null;
+                    do {
+                        int id = readInt("Select one ID: ");
                         for (ECG signal : signals) {
-                            System.out.println("ID: " + signal.getId() + ", Date: " + signal.getStartDate().toString());
-                        }
-                        boolean check2 = false;
-                        ECG ecg = null;
-                        do {
-                            int id = readInt("Select one ID: ");
-                            for (ECG signal : signals) {
-                                if (id == signal.getId()) {
-                                    ecg = signal;
-                                    check2 = true;
-                                }
-                            }
-                        } while (!check2);
-                        System.out.println(ecg.toString());
-                        /*int userid = manager.getId(u.getUsername());
-                        Doctor d = manager.selectDoctorByUserId(userid);
-                        List<Patient> patientList = manager.selectPatientsByDoctorId(manager.getId(d.getName()));
-                        Utilities.Communication.sendPatientList(patientList, pw, br); //envía lista de pacientes al cliente*/
-                        break;
-                    case 3:
-                        for (Patient patient : patients) {
-                            System.out.println("Name and lastname: " + patient.getName() + " " + patient.getLastName()
-                                    + ", Gender: " + patient.getGender() + ", Email: " + patient.getEmail());
-                        }
-                        /*int userid1 = manager.getId(u.getUsername());
-                        Doctor d1 = manager.selectDoctorByUserId(userid1);
-                        List<Patient> patientList1 = manager.selectPatientsByDoctorId(manager.getId(d1.getName()));
-                        Utilities.Communication.sendPatientList(patientList1, pw, br);
-                        Patient p1 = manager.selectPatientByUserId(userid1); //se selecciona al paciente asociado con el id del user
-                        List<ECG> ecgs = manager.listAllECG(p1);
-                        Utilities.Communication.sendAllSignals(pw, br, ecgs);
-                        String filename = br.readLine();
-                        ECG s1 = manager.selectSignalByName(filename);
-                        pw.println(s1.toString());*/
-                        break;
-                    case 4:
-
-                        List<Patient> allPatients = manager.listAllPatients();
-                        for (Patient patient1 : allPatients) {
-                            for (Patient patient2 : patients) {
-                                if (patient1.getId() == patient2.getId()) {
-                                    allPatients.remove(patient1);
-                                }
+                            if (id == signal.getId()) {
+                                ecg = signal;
+                                check2 = true;
                             }
                         }
+                    } while (!check2);
+                    System.out.println(ecg.toString());
+                    /*int userid = manager.getId(u.getUsername());
+                    Doctor d = manager.selectDoctorByUserId(userid);
+                    List<Patient> patientList = manager.selectPatientsByDoctorId(manager.getId(d.getName()));
+                    Utilities.Communication.sendPatientList(patientList, pw, br); //envía lista de pacientes al cliente*/
+                    break;
+                case 3:
+                    for (Patient patient : patients) {
+                        System.out.println("Name and lastname: " + patient.getName() + " " + patient.getLastName()
+                                + ", Gender: " + patient.getGender() + ", Email: " + patient.getEmail());
+                    }
+                    /*int userid1 = manager.getId(u.getUsername());
+                    Doctor d1 = manager.selectDoctorByUserId(userid1);
+                    List<Patient> patientList1 = manager.selectPatientsByDoctorId(manager.getId(d1.getName()));
+                    Utilities.Communication.sendPatientList(patientList1, pw, br);
+                    Patient p1 = manager.selectPatientByUserId(userid1); //se selecciona al paciente asociado con el id del user
+                    List<ECG> ecgs = manager.listAllECG(p1);
+                    Utilities.Communication.sendAllSignals(pw, br, ecgs);
+                    String filename = br.readLine();
+                    ECG s1 = manager.selectSignalByName(filename);
+                    pw.println(s1.toString());*/
+                    break;
+                case 4:
+                    
+                    List<Patient> allPatients = manager.listAllPatients();
+                    for (Patient patient1 : allPatients) {
+                        for (Patient patient2 : patients) {
+                            if (patient1.getId() == patient2.getId()) {
+                                allPatients.remove(patient1);
+                            }
+                        }
+                    }
+                    for (Patient patient : allPatients) {
+                        System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
+                    }
+                    check2 = false;
+                    int patientId = 0;
+                    do {
+                        patientId = readInt("Introduce one ID: ");
                         for (Patient patient : allPatients) {
-                            System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
-                        }
-                        check2 = false;
-                        int patientId = 0;
-                        do {
-                            patientId = readInt("Introduce one ID: ");
-                            for (Patient patient : allPatients) {
-                                if (patient.getId() == patientId) {
-                                    check2 = true;
-                                }
+                            if (patient.getId() == patientId) {
+                                check2 = true;
                             }
-                        } while (!check2);
-                        manager.createLinkDoctorPatient(patientId, d.getDoctorId());
-                        /*int userid2 = manager.getId(u.getUsername());
-                        Doctor d2 = manager.selectDoctorByUserId(userid2);
-                        List<Patient> patientList2 = manager.selectPatientsByDoctorId(manager.getId(d2.getName()));
-                        Utilities.Communication.sendPatientList(patientList2, pw, br);
-                        Patient pToDelete = manager.selectPatient(userid2);
-                        manager.deletePatient(pToDelete.getId());
-                        manager.deleteUserByUserId(userid2);*/
-                        break;
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } while (!check2);
+                    manager.createLinkDoctorPatient(patientId, d.getDoctorId());
+                    /*int userid2 = manager.getId(u.getUsername());
+                    Doctor d2 = manager.selectDoctorByUserId(userid2);
+                    List<Patient> patientList2 = manager.selectPatientsByDoctorId(manager.getId(d2.getName()));
+                    Utilities.Communication.sendPatientList(patientList2, pw, br);
+                    Patient pToDelete = manager.selectPatient(userid2);
+                    manager.deletePatient(pToDelete.getId());
+                    manager.deleteUserByUserId(userid2);*/
+                    break;
             }
         } while (option != 0);
     }

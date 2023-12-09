@@ -45,10 +45,12 @@ public class JDBCManager implements DBManager {
     @Override
     public void connect() {
         try {
-            Class.forName("org.sqlite.JDBC");
-            //here we get the connection
-            this.c = DriverManager.getConnection("jdbc:sqlite:./db/ArrhythmiaTelemedicineProject.db");
-            c.createStatement().execute("PRAGMA foreign_keys=ON");
+            if(c==null){
+                Class.forName("org.sqlite.JDBC");
+                //here we get the connection
+                this.c = DriverManager.getConnection("jdbc:sqlite:./db/ArrhythmiaTelemedicineProject.db");
+                c.createStatement().execute("PRAGMA foreign_keys=ON");
+            }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -120,6 +122,7 @@ public class JDBCManager implements DBManager {
             //byte[] hash = md.digest();
             //prep.setBytes(6, hash);
             prep.executeUpdate();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
@@ -267,6 +270,7 @@ public class JDBCManager implements DBManager {
                 prep.setBytes(1, hash);
                 prep.setString(2, username);
                 prep.executeUpdate();
+                prep.close();
             } catch (SQLException ex) {
                 Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
             } catch (NoSuchAlgorithmException ex) {
@@ -453,11 +457,11 @@ public class JDBCManager implements DBManager {
         try {
             String sql = "INSERT INTO USER (username, password, role_id) VALUES (?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
-            //prep.setString(1, user.getRole());
             prep.setString(1, user.getUsername());
             prep.setBytes(2, user.getPassword());
             prep.setInt(3, user.getRole_id());
             prep.executeUpdate();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -478,6 +482,8 @@ public class JDBCManager implements DBManager {
                 User user = new User(role_id, username, password, id);
                 return user;
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -499,6 +505,8 @@ public class JDBCManager implements DBManager {
                 User user = new User(role_id, username, password, id);
                 return user;
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -516,6 +524,7 @@ public class JDBCManager implements DBManager {
             byte[] hash = md.digest();
             prep.setBytes(2, hash);
             prep.executeUpdate();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
@@ -532,6 +541,7 @@ public class JDBCManager implements DBManager {
             prep.setString(2, doctor.getLastName());
             prep.setString(3, doctor.getEmail());
             prep.executeUpdate();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -552,6 +562,8 @@ public class JDBCManager implements DBManager {
                 Doctor doctor = new Doctor(id, name, lastName, email, patientId);
                 return doctor;
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -573,6 +585,8 @@ public class JDBCManager implements DBManager {
                 Doctor doctor = new Doctor(id, name, lastname, email, patientId);
                 return doctor;
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -595,6 +609,8 @@ public class JDBCManager implements DBManager {
                 Doctor doctor = new Doctor(id, name, lastName, email, userId);
                 doctors.add(doctor);
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -617,6 +633,8 @@ public class JDBCManager implements DBManager {
                 Doctor doctor = new Doctor(id, name, lastName, email, patientId);
                 doctors.add(doctor);
             }
+            rs.close();
+            prep.close();
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
