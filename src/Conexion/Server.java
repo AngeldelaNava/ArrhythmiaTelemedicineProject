@@ -41,19 +41,22 @@ public class Server {
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
                 Socket socketClient = serverSocketClient.accept();
                 System.out.println("Client connected!");
-                client = new Client(socketClient);
+                //client = new Client(socketClient);
                 //ObjectInputStream in = new ObjectInputStream(socketClient.getInputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-                String option = br.readLine();  // Leer la opción del menú
-                System.out.println("Option received from client: " + option);
-                Thread clientThread = new Thread(client);
+                //BufferedReader br = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+                //String option = br.readLine();  // Leer la opción del menú
+                //System.out.println("Option received from client: " + option);
+                //Thread clientThread = new Thread(client);
 
-                clientThread.start();
-                clientsThreadsList.add(clientThread);
-                contador++;
+                new Thread(new Client(socketClient)).start();
+                //clientThread.start();
+                //clientsThreadsList.add(clientThread);
+                //contador++;
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }finally{
             ReleaseResourcesServerClient(serverSocketClient);
         }
     }

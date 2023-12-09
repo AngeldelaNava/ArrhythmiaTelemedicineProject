@@ -82,21 +82,18 @@ public class ClientMethods {
             //System.out.print("Username: ");
             //String username = sc.next();
             //String username = readString("Username: ");
-            System.out.print("Username:");
-            String username = br.readLine();
-            user.setUsername(username);
+           // System.out.print("Username:");
+            //String username = br.readLine();
+            //user.setUsername(username);
             //System.out.print("Password: ");
             //String password = sc.next();
             //String password = readString("Password: ");
-            System.out.print("Password:");
-            String password = br.readLine();
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(password.getBytes());
-            byte[] hash = md.digest();
-            user.setPassword(hash);
-            Utilities.Communication.sendUser(pw, user);
-            manager.addUser(user);
-            User u = manager.getUser(username);
+            //System.out.print("Password:");
+           
+            //Utilities.Communication.sendUser(pw, user);
+            //manager.addUser(user);
+            //User u= new User();
+            //User u = manager.getUser(username);
             String name, lastName, gender, birthdate, email;
             switch (role) {
                 case 1:
@@ -106,7 +103,7 @@ public class ClientMethods {
                     System.out.print("Name:");
                     name = br.readLine();
                     p.setName(name);
-
+                    user.setUsername(name);
                     //System.out.print("LastName: ");
                     //String lastName = sc.next();
                     //lastName = readString("Last Name: ");
@@ -114,6 +111,13 @@ public class ClientMethods {
                     lastName = br.readLine();
                     p.setLastName(lastName);
 
+                    
+                    System.out.print("password:");
+                    String password = br.readLine();
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(password.getBytes());
+                    byte[] hash = md.digest();
+                    user.setPassword(hash);
                     //System.out.print("Gender: ");
                     //String gender = sc.next();
                     //gender = readString("Gender (male OR female): ");
@@ -151,21 +155,29 @@ public class ClientMethods {
                     //email = readString("Email: ");
                     p.setEmail(email);
 
-                    p.setUserId(u.getId());
+                    p.setUserId(user.getId());
                     Utilities.Communication.sendPatient(pw, p, manager);
                     //manager.addPatient(p);
                     break;
                 case 2:
                     name = readString("Name: ");
                     d.setName(name);
-
+                    user.setUsername(name);
+                    
                     lastName = readString("Last Name: ");
                     d.setLastName(lastName);
 
                     email = readString("Email: ");
                     d.setEmail(email);
-
-                    d.setUserId(u.getId());
+                    
+                     System.out.print("password:");
+                     String password1 = br.readLine();
+                     MessageDigest md1 = MessageDigest.getInstance("MD5");
+                     md1.update(password1.getBytes());
+                     byte[] hash1 = md1.digest();
+                     user.setPassword(hash1);
+                    
+                    d.setUserId(user.getId());
                     Utilities.Communication.sendDoctor(pw, d, manager);
                 //manager.addDoctor(d);
             }
@@ -182,9 +194,9 @@ public class ClientMethods {
                     user
                 }
             }*/
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
+            Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -49,16 +49,32 @@ public class Client implements Runnable, Serializable {
 
     public static void main(String[] args) {
         try {
-            Socket socket = new Socket("localhost", 9000);
-            Client client = new Client(socket);
-            Thread clientThread = new Thread(client);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            out.writeObject(client);
-            clientThread.start();
+            
+           // Client client = new Client(socket);
+            //Thread clientThread = new Thread(client);
+            //ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            //out.writeObject(client);
+            //clientThread.start();
             //OutputStream os = socket.getOutputStream();
+            int byteRead;
+            InputStream console = (System.in);
+            Socket socket = new Socket("localhost", 9000);
+            OutputStream outputStream = socket.getOutputStream();
+            
+            while(true){
+                
+                byteRead = console.read();
+                
+                outputStream.write(byteRead);
+                if(byteRead==-1||byteRead=='x'||byteRead=='!'){
+                    System.out.println("Finish");
+                    Server.releaseClientResources(console, outputStream, socket);
+                    System.exit(0);
+                }
+            }
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+          Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+       }
     }
 
     @Override

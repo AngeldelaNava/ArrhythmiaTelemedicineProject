@@ -5,6 +5,8 @@
  */
 package Utilities;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import static java.lang.System.console;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -15,9 +17,11 @@ import java.time.format.DateTimeFormatter;
  * @author jsold
  */
 public class UtilitiesRead {
+    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
+   
     public static int readInt(String text) {
-
+        
         int number;
         while (true) {
             try {
@@ -36,7 +40,7 @@ public class UtilitiesRead {
             try {
 
                 String stringReaded;
-                stringReaded = console().readLine();
+                stringReaded = reader.readLine();
                 return stringReaded;
 
             } catch (Exception error) {

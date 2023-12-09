@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,8 +72,8 @@ public class JDBCManager implements DBManager {
             Statement stmt = c.createStatement();
 
             String sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
-                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " email TEXT NOT NULL,"
-                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " date_of_birth TEXT NOT NULL,"
+                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL," 
+                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id)) ";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
@@ -108,11 +109,12 @@ public class JDBCManager implements DBManager {
     @Override
     public void addPatient(Patient p) {
         try {
-            String sql = "INSERT INTO PATIENT (name, lastname, date, gender, MAC) VALUES (?,?,?,?, ?)";
+            String sql = "INSERT INTO PATIENT (name, lastname, date_of_birth, email, gender) VALUES (?,?,?,?,?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
             prep.setString(2, p.getLastName());
-            prep.setString(3, formatDate(p.getDob()));
+            prep.setString(3, p.getDob().toString());
+            prep.setString(4, p.getEmail());
             prep.setString(4, p.getGender());
             //prep.setString(5, p.getEmail());
             //prep.setString(6, p.getUsername());
