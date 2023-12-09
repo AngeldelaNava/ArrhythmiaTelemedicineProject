@@ -49,22 +49,22 @@ public class Patient {
         this.doctorIds = doctorIds;
     }
 
-    public Patient(Integer id, String name, LocalDate dob, String lastName, String gender, String email, int userId) {
+    public Patient(Integer id, String name, LocalDate dob, String lastName, String email, int userId) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
-        this.gender = gender;
+        //this.gender = gender;
         this.id = id;
         this.email = email;
         this.userId = userId;
     }
 
-    public Patient(String name, String lastName, LocalDate dob, String email, String gender, int userId) {
+    public Patient(String name, String lastName, LocalDate dob, String email, int userId) {
         this.name = name;
         this.lastName = lastName;
         this.dob = dob;
         this.email = email;
-        this.gender = gender;
+        /*this.gender = gender;*/
         this.userId = userId;
     }
 
@@ -116,14 +116,12 @@ public class Patient {
         this.email = email;
     }
 
-    public String getGender() {
+    /* public String getGender() {
         return gender;
-    }
-
-    public void setGender(String gender) {
+    }*/
+ /*public void setGender(String gender) {
         this.gender = gender;
-    }
-
+    }*/
     public Integer getId() {
         return id;
     }
@@ -154,7 +152,7 @@ public class Patient {
     @Override
     public String toString() {
         return "Patient{" + ", name=" + name + ", lastName=" + lastName
-                + ", date of birth=" + dob + ", gender=" + gender + ", email=" + email
+                + ", date of birth=" + dob + ", email=" + email
                 + "}";
     }
 }

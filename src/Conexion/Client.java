@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -44,13 +43,13 @@ public class Client implements Runnable, Serializable {
 
     public Client(Socket socket) {
         this.socket = socket;
-        manager=new JDBCManager();
+        manager = new JDBCManager();
     }
 
     public static void main(String[] args) {
         try {
-            
-           // Client client = new Client(socket);
+
+            // Client client = new Client(socket);
             //Thread clientThread = new Thread(client);
             //ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             //out.writeObject(client);
@@ -60,21 +59,21 @@ public class Client implements Runnable, Serializable {
             InputStream console = (System.in);
             Socket socket = new Socket("localhost", 9000);
             OutputStream outputStream = socket.getOutputStream();
-            
-            while(true){
-                
+
+            while (true) {
+
                 byteRead = console.read();
-                
+
                 outputStream.write(byteRead);
-                if(byteRead==-1||byteRead=='x'||byteRead=='!'){
+                if (byteRead == -1 || byteRead == 'x' || byteRead == '!') {
                     System.out.println("Finish");
                     Server.releaseClientResources(console, outputStream, socket);
                     System.exit(0);
                 }
             }
         } catch (IOException ex) {
-          Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-       }
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -114,8 +113,7 @@ public class Client implements Runnable, Serializable {
                 System.out.println("@@                 0. Exit                                          @@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                System.out.print("Select an option: ");
-                int option = Integer.parseInt(consola.readLine());
+                int option = readInt("Select an option: ");
                 switch (option) {
                     case 1:
                         pw.println("1");
@@ -125,7 +123,7 @@ public class Client implements Runnable, Serializable {
                         pw.println("2");
                         User user = Utilities.ClientMethods.login(br, pw, manager); //user hace log in
                         System.out.print(user.toString());
-                        
+
                         if (user.getRole_id() == 1) { //es paciente
                             pw.println("patient"); //envia patient al client
                             Patient p = manager.selectPatientByUserId(user.getId()); //selecciona paciente asociado al usuario userId=Id de la clase user
@@ -137,7 +135,7 @@ public class Client implements Runnable, Serializable {
                             Utilities.Communication.sendDoctor(pw, d, manager); //envia la inforamcion del doctor al cliente
                             doctorMenu(user, br, pw, manager); //menu doctor
                         }
-                       
+
                         break;
                     case 0:
                         pw.println("0");
@@ -296,7 +294,7 @@ public class Client implements Runnable, Serializable {
                         }
                     } while (!check);
                     System.out.println(p.toString());
-                    
+
                     //Utilities.ClientMethods.registerDoctor(br, pw, manager);
                     break;
                 case 2:
@@ -314,7 +312,7 @@ public class Client implements Runnable, Serializable {
                             }
                         }
                     } while (!check1);
-                    
+
                     List<ECG> signals = ShowSignals(manager, p1);
                     for (ECG signal : signals) {
                         System.out.println("ID: " + signal.getId() + ", Date: " + signal.getStartDate().toString());
@@ -339,7 +337,7 @@ public class Client implements Runnable, Serializable {
                 case 3:
                     for (Patient patient : patients) {
                         System.out.println("Name and lastname: " + patient.getName() + " " + patient.getLastName()
-                                + ", Gender: " + patient.getGender() + ", Email: " + patient.getEmail());
+                                + /*", Gender: " + patient.getGender() +*/ ", Email: " + patient.getEmail());
                     }
                     /*int userid1 = manager.getId(u.getUsername());
                     Doctor d1 = manager.selectDoctorByUserId(userid1);
@@ -353,7 +351,7 @@ public class Client implements Runnable, Serializable {
                     pw.println(s1.toString());*/
                     break;
                 case 4:
-                    
+
                     List<Patient> allPatients = manager.listAllPatients();
                     for (Patient patient1 : allPatients) {
                         for (Patient patient2 : patients) {

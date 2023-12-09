@@ -4,11 +4,8 @@
  */
 package Conexion;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -36,7 +33,6 @@ public class Server {
 
             //StopServer SThread = new StopServer();
             //Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
-
             //stopServer.start();
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
                 Socket socketClient = serverSocketClient.accept();
@@ -55,13 +51,11 @@ public class Server {
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            
-        }finally{
+
+        } finally {
             ReleaseResourcesServerClient(serverSocketClient);
         }
     }
-    
-    
 
     public static void ExitServer() {//para cerrar el server pulsar x
         Scanner sc = new Scanner(System.in);

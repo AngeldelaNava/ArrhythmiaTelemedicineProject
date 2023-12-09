@@ -13,7 +13,6 @@ import static Utilities.UtilitiesRead.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -83,14 +82,14 @@ public class ClientMethods {
             //System.out.print("Username: ");
             //String username = sc.next();
             //String username = readString("Username: ");
-           // System.out.print("Username:");
+            // System.out.print("Username:");
             //String username = br.readLine();
             //user.setUsername(username);
             //System.out.print("Password: ");
             //String password = sc.next();
             //String password = readString("Password: ");
             //System.out.print("Password:");
-           
+
             //Utilities.Communication.sendUser(pw, user);
             //manager.addUser(user);
             //User u= new User();
@@ -104,30 +103,31 @@ public class ClientMethods {
                     System.out.print("Name:");
                     name = br.readLine();
                     p.setName(name);
-                    
+
                     //System.out.print("LastName: ");
                     //String lastName = sc.next();
                     //lastName = readString("Last Name: ");
                     System.out.print("Last Name:");
                     lastName = br.readLine();
                     p.setLastName(lastName);
-                    
-                    
+
                     System.out.print("Username:");
                     userName = br.readLine();
                     user.setUsername(userName);
-                    
+
                     System.out.print("password:");
                     String password = br.readLine();
                     MessageDigest md = MessageDigest.getInstance("MD5");
                     md.update(password.getBytes());
                     byte[] hash = md.digest();
                     user.setPassword(hash);
+                    manager.addUser(user);
                     //System.out.print("Gender: ");
                     //String gender = sc.next();
                     //gender = readString("Gender (male OR female): ");
-                    System.out.print("Gender (male OR female):");
-                    gender = br.readLine();
+
+                    ///////////////// /*System.out.print("Gender (male OR female):");
+                    /*gender = br.readLine();
                     do {
                         if (gender.equalsIgnoreCase("male")) {
                             gender = "Male";
@@ -138,11 +138,10 @@ public class ClientMethods {
                             //gender = sc.next();
                             System.out.print("Not a valid gender.\nGender (male OR female):");
                             gender = br.readLine();
-                           
+
                         }
                     } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
-                    p.setGender(gender);
-
+                    p.setGender(gender);*////////////////
                     //System.out.print("Date of birth [yyyy-mm-dd]: ");
                     //String birthdate = sc.next();
                     System.out.print("Introduce the date of birth [yyyy-mm-dd]: ");
@@ -167,21 +166,24 @@ public class ClientMethods {
                 case 2:
                     name = readString("Name: ");
                     d.setName(name);
-                    user.setUsername(name);
-                    
+                    //user.setUsername(name);
+
                     lastName = readString("Last Name: ");
                     d.setLastName(lastName);
 
+                    userName = readString("Usename: ");
+                    user.setUsername(userName);
+
                     email = readString("Email: ");
                     d.setEmail(email);
-                    
-                     System.out.print("password:");
-                     String password1 = br.readLine();
-                     MessageDigest md1 = MessageDigest.getInstance("MD5");
-                     md1.update(password1.getBytes());
-                     byte[] hash1 = md1.digest();
-                     user.setPassword(hash1);
-                    
+
+                    System.out.print("password:");
+                    String password1 = br.readLine();
+                    MessageDigest md1 = MessageDigest.getInstance("MD5");
+                    md1.update(password1.getBytes());
+                    byte[] hash1 = md1.digest();
+                    user.setPassword(hash1);
+
                     d.setUserId(user.getId());
                     Utilities.Communication.sendDoctor(pw, d, manager);
                 //manager.addDoctor(d);
@@ -206,57 +208,52 @@ public class ClientMethods {
         }
     }
 
-    
     public static User login(BufferedReader br, PrintWriter pw, JDBCManager manager) {
         try {
             // Obtener la lista de usuarios desde la base de datos
-            
+
             System.out.print("Username:");
-            
+
             String username = br.readLine();
-            
+
             System.out.print("password:");
             String password = br.readLine();
-            
-            
+
             List<User> users = manager.listAllUsers();
-            
+
             // Verificar si el usuario y la contraseña coinciden
             for (User user : users) {
                 if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                     return user; // Devolver el usuario si la autenticación es exitosa
-                   // System.out.print(user.toString());
+                    // System.out.print(user.toString());
                 }
             }
 
             // Devolver null si no se encuentra el usuario en la base de datos
-            
         } catch (IOException ex) {
             Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
-            
+
         }
         return null;
-        }
-    
-    
-    
+    }
+
     /*public static User login(BufferedReader bf, PrintWriter pw, JDBCManager userman) {
         User u = Utilities.Communication.receiveUser(bf);
         String str = new String(u.getPassword(), StandardCharsets.UTF_8);//transform a byte[] in a string;
         User user1 = new User();
-        
+
         System.out.print("Username:");
         name = br.readLine();
                     p.setName(name);
                     user.setUsername(name);
-        
+
                 System.out.print("password:");
                     String password = br.readLine();
                     MessageDigest md = MessageDigest.getInstance("MD5");
                     md.update(password.getBytes());
                     byte[] hash = md.digest();
                     user1.setPassword(hash);
-             
+
         //UTF-8,which is a common way to encode Unicode characters into byte sequences
         User user = userman.checkPassword(u.getUsername(), str);
         if (user == null) {
@@ -272,7 +269,7 @@ public class ClientMethods {
         }
         return null;
     }
-    */
+     */
     public static void firstlogin(JDBCManager manager) {
         try {
             if (!manager.verifyUsername("admin")) {

@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +45,7 @@ public class JDBCManager implements DBManager {
     @Override
     public void connect() {
         try {
-            if(c==null){
+            if (c == null) {
                 Class.forName("org.sqlite.JDBC");
                 //here we get the connection
                 this.c = DriverManager.getConnection("jdbc:sqlite:./db/ArrhythmiaTelemedicineProject.db");
@@ -72,8 +71,8 @@ public class JDBCManager implements DBManager {
             Statement stmt = c.createStatement();
 
             String sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
-                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL," 
-                    + " gender TEXT CHECK (gender = 'M' OR gender = 'F')," + " email TEXT NOT NULL,"
+                    + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL,"
+                    /*" gender TEXT NOT NULL," */ + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id)) ";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
@@ -109,25 +108,24 @@ public class JDBCManager implements DBManager {
     @Override
     public void addPatient(Patient p) {
         try {
-            String sql = "INSERT INTO PATIENT (name, lastname, date_of_birth, email, gender) VALUES (?,?,?,?,?)";
+            String sql = "INSERT INTO PATIENT (name, lastname, date_of_birth, email) VALUES (?,?,?,?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
             prep.setString(2, p.getLastName());
             prep.setString(3, p.getDob().toString());
+            //prep.setString(4, p.getGender());
             prep.setString(4, p.getEmail());
-            prep.setString(4, p.getGender());
+
             //prep.setString(5, p.getEmail());
             //prep.setString(6, p.getUsername());
             //String password = p.getPassword();
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            //MessageDigest md = MessageDigest.getInstance("MD5");
             //md.update(password.getBytes());
             //byte[] hash = md.digest();
             //prep.setBytes(6, hash)
             prep.executeUpdate();
             prep.close();
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -219,7 +217,7 @@ public class JDBCManager implements DBManager {
                 int userId = rs.getInt("user_id");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate date = LocalDate.parse(fecha, formatter);
-                Patient p = new Patient(id, name, date, lastname, gender, email, userId);
+                Patient p = new Patient(id, name, date, lastname, email, userId);
                 patients.add(p);
             }
 
@@ -256,8 +254,7 @@ public class JDBCManager implements DBManager {
         }
         return users;
     }
-    
-    
+
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
         try {
@@ -834,7 +831,7 @@ public class JDBCManager implements DBManager {
                 LocalDate localDate = sqlDate.toLocalDate();
                 p1.setDob(localDate);
                 p1.setEmail(rs.getString("email"));
-                p1.setGender(rs.getString("gender"));
+                //p1.setGender(rs.getString("gender"));
                 p1.setId(rs.getInt("id"));
                 p1.setId(userId);
 
@@ -916,7 +913,7 @@ public class JDBCManager implements DBManager {
             Patient patient = null;
             if (rs.next()) {
                 patient = new Patient(rs.getString("name"), rs.getString("lastname"), LocalDate.parse(rs.getString("date_of_birth")),
-                        rs.getString("email"), rs.getString("gender"), rs.getInt("user_id"));
+                        rs.getString("email"), rs.getInt("user_id"));//rs.getString("gender"),
             }
             p.close();
             rs.close();
