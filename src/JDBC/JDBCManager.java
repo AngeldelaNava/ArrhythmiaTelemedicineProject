@@ -122,7 +122,7 @@ public class JDBCManager implements DBManager {
             MessageDigest md = MessageDigest.getInstance("MD5");
             //md.update(password.getBytes());
             //byte[] hash = md.digest();
-            //prep.setBytes(6, hash);
+            //prep.setBytes(6, hash)
             prep.executeUpdate();
             prep.close();
         } catch (SQLException ex) {
@@ -207,7 +207,7 @@ public class JDBCManager implements DBManager {
         List<Patient> patients = new ArrayList<>();
         try {
             Statement stmt = c.createStatement();
-            String sql = "SELECT * FROM patients";
+            String sql = "SELECT * FROM PATIENT";
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 Integer id = rs.getInt("id");
@@ -232,6 +232,32 @@ public class JDBCManager implements DBManager {
         return patients;
     }
 
+    public List<User> listAllUsers() {
+        List<User> users = new ArrayList<>();
+        try {
+            Statement stmt = c.createStatement();
+            String sql = "SELECT * FROM USER";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String username = rs.getString("username");
+                String password = rs.getString("password");
+                byte[] bytes = password.getBytes();
+                int roleId = rs.getInt("role_id");
+                User u = new User(id, username, bytes, roleId);
+                users.add(u);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return users;
+    }
+    
+    
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
         try {

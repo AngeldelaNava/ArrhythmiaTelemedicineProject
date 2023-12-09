@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,7 +95,7 @@ public class ClientMethods {
             //manager.addUser(user);
             //User u= new User();
             //User u = manager.getUser(username);
-            String name, lastName, gender, birthdate, email;
+            String name, lastName, gender, birthdate, email, userName;
             switch (role) {
                 case 1:
                     //System.out.print("Name: ");
@@ -103,14 +104,18 @@ public class ClientMethods {
                     System.out.print("Name:");
                     name = br.readLine();
                     p.setName(name);
-                    user.setUsername(name);
+                    
                     //System.out.print("LastName: ");
                     //String lastName = sc.next();
                     //lastName = readString("Last Name: ");
                     System.out.print("Last Name:");
                     lastName = br.readLine();
                     p.setLastName(lastName);
-
+                    
+                    
+                    System.out.print("Username:");
+                    userName = br.readLine();
+                    user.setUsername(userName);
                     
                     System.out.print("password:");
                     String password = br.readLine();
@@ -201,9 +206,57 @@ public class ClientMethods {
         }
     }
 
-    public static User login(BufferedReader bf, PrintWriter pw, JDBCManager userman) {
+    
+    public static User login(BufferedReader br, PrintWriter pw, JDBCManager manager) {
+        try {
+            // Obtener la lista de usuarios desde la base de datos
+            
+            System.out.print("Username:");
+            
+            String username = br.readLine();
+            
+            System.out.print("password:");
+            String password = br.readLine();
+            
+            
+            List<User> users = manager.listAllUsers();
+            
+            // Verificar si el usuario y la contraseña coinciden
+            for (User user : users) {
+                if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                    return user; // Devolver el usuario si la autenticación es exitosa
+                   // System.out.print(user.toString());
+                }
+            }
+
+            // Devolver null si no se encuentra el usuario en la base de datos
+            
+        } catch (IOException ex) {
+            Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
+        return null;
+        }
+    
+    
+    
+    /*public static User login(BufferedReader bf, PrintWriter pw, JDBCManager userman) {
         User u = Utilities.Communication.receiveUser(bf);
         String str = new String(u.getPassword(), StandardCharsets.UTF_8);//transform a byte[] in a string;
+        User user1 = new User();
+        
+        System.out.print("Username:");
+        name = br.readLine();
+                    p.setName(name);
+                    user.setUsername(name);
+        
+                System.out.print("password:");
+                    String password = br.readLine();
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(password.getBytes());
+                    byte[] hash = md.digest();
+                    user1.setPassword(hash);
+             
         //UTF-8,which is a common way to encode Unicode characters into byte sequences
         User user = userman.checkPassword(u.getUsername(), str);
         if (user == null) {
@@ -219,7 +272,7 @@ public class ClientMethods {
         }
         return null;
     }
-
+    */
     public static void firstlogin(JDBCManager manager) {
         try {
             if (!manager.verifyUsername("admin")) {

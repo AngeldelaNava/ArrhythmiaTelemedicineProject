@@ -82,7 +82,7 @@ public class Client implements Runnable, Serializable {
         manager.connect();
         manager.createTables(); //creo las tablas
         createRoles(manager); //establezco los tipos de role que puede haber
-        Utilities.ClientMethods.firstlogin(manager);
+        //Utilities.ClientMethods.firstlogin(manager);  no sabemos para qué sirve todavía
 
         InputStream inputStream;
         OutputStream outputStream;
@@ -124,6 +124,8 @@ public class Client implements Runnable, Serializable {
                     case 2:
                         pw.println("2");
                         User user = Utilities.ClientMethods.login(br, pw, manager); //user hace log in
+                        System.out.print(user.toString());
+                        
                         if (user.getRole_id() == 1) { //es paciente
                             pw.println("patient"); //envia patient al client
                             Patient p = manager.selectPatientByUserId(user.getId()); //selecciona paciente asociado al usuario userId=Id de la clase user
@@ -135,6 +137,7 @@ public class Client implements Runnable, Serializable {
                             Utilities.Communication.sendDoctor(pw, d, manager); //envia la inforamcion del doctor al cliente
                             doctorMenu(user, br, pw, manager); //menu doctor
                         }
+                       
                         break;
                     case 0:
                         pw.println("0");

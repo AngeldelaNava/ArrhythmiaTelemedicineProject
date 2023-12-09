@@ -215,7 +215,7 @@ public class Communication {
         System.out.println(s.toString());
         return s;
     }
-
+    
     public static User receiveUser(BufferedReader br) {
         User u = new User();
         try {
