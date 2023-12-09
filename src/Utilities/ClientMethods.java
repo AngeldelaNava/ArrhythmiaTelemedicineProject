@@ -17,7 +17,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import static java.util.Objects.hash;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,40 +75,19 @@ public class ClientMethods {
             User user = new User();
 
             System.out.println("Let's proceed with the registration:");
-            //Utilities.Communication.sendPatient(pw, p);
-            //String roleString = readString("1. Patient\n2. Doctor\nRole: ");
             System.out.print("1.Patient\n2. Doctor\nRole:");
             String roleString = br.readLine();
             int role = Integer.parseInt(roleString);
             user.setRole_id(role);
-            //System.out.print("Username: ");
-            //String username = sc.next();
-            //String username = readString("Username: ");
-            // System.out.print("Username:");
-            //String username = br.readLine();
-            //user.setUsername(username);
-            //System.out.print("Password: ");
-            //String password = sc.next();
-            //String password = readString("Password: ");
-            //System.out.print("Password:");
-
-            //Utilities.Communication.sendUser(pw, user);
-            //manager.addUser(user);
-            //User u= new User();
-            //User u = manager.getUser(username);
-            String name, lastName, gender, birthdate, email, userName;
+            
+            String name, lastName, birthdate, email, userName;
             switch (role) {
                 case 1:
-                    //System.out.print("Name: ");
-                    //String name = sc.next();
-                    //name = readString("Name: ");
+                   
                     System.out.print("Name:");
                     name = br.readLine();
                     p.setName(name);
 
-                    //System.out.print("LastName: ");
-                    //String lastName = sc.next();
-                    //lastName = readString("Last Name: ");
                     System.out.print("Last Name:");
                     lastName = br.readLine();
                     p.setLastName(lastName);
@@ -121,47 +102,24 @@ public class ClientMethods {
                     md.update(password.getBytes());
                     byte[] hash = md.digest();
                     user.setPassword(hash);
-                    manager.addUser(user);
-                    //System.out.print("Gender: ");
-                    //String gender = sc.next();
-                    //gender = readString("Gender (male OR female): ");
-
-                    ///////////////// /*System.out.print("Gender (male OR female):");
-                    /*gender = br.readLine();
-                    do {
-                        if (gender.equalsIgnoreCase("male")) {
-                            gender = "Male";
-                        } else if (gender.equalsIgnoreCase("female")) {
-                            gender = "Female";
-                        } else {
-                            //System.out.print("Not a valid gender. Please introduce a gender (male or female): ");
-                            //gender = sc.next();
-                            System.out.print("Not a valid gender.\nGender (male OR female):");
-                            gender = br.readLine();
-
-                        }
-                    } while (!(gender.equalsIgnoreCase("male") || gender.equalsIgnoreCase("female")));
-                    p.setGender(gender);*////////////////
-                    //System.out.print("Date of birth [yyyy-mm-dd]: ");
-                    //String birthdate = sc.next();
+                    //manager.addUser(user);
+                    Utilities.Communication.sendUser(pw, user, manager);
+                    
                     System.out.print("Introduce the date of birth [yyyy-mm-dd]: ");
                     birthdate = br.readLine();
-                    //birthdate = readString("Introduce the date of birth [yyyy-mm-dd]: ");
-                    //System.out.print("Please introduce a valid date [yyyy-mm-dd]: ");
-                    //birthdate = sc.next();
+                   
                     LocalDate bdate = readDate(birthdate);
                     p.setDob(bdate);
 
-                    //System.out.print("Email: ");
-                    //String email = sc.next();
+                    
                     System.out.print("Email: ");
                     email = br.readLine();
-                    //email = readString("Email: ");
                     p.setEmail(email);
 
                     p.setUserId(user.getId());
+                    
                     Utilities.Communication.sendPatient(pw, p, manager);
-                    //manager.addPatient(p);
+                    manager.addPatient(p);
                     break;
                 case 2:
                     name = readString("Name: ");
@@ -218,17 +176,19 @@ public class ClientMethods {
 
             System.out.print("password:");
             String password = br.readLine();
-
-            List<User> users = manager.listAllUsers();
-
+            byte[] bytesDefaultCharset = password.getBytes();
+            if(manager.verifyUsername(username) && manager.verifyPassword(username, password)){
+                
+                return manager.getUser(manager.getId(username));
+            }
             // Verificar si el usuario y la contraseña coinciden
-            for (User user : users) {
-                if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            /*for (User user : users) {
+                if (user.getUsername().equals(username) && Arrays.equals(user.getPassword(), hash)) {
                     return user; // Devolver el usuario si la autenticación es exitosa
                     // System.out.print(user.toString());
                 }
             }
-
+            System.out.println("Login failed. User not found or incorrect password.");*/
             // Devolver null si no se encuentra el usuario en la base de datos
         } catch (IOException ex) {
             Logger.getLogger(ClientMethods.class.getName()).log(Level.SEVERE, null, ex);

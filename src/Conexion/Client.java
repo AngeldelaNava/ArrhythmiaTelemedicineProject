@@ -122,12 +122,11 @@ public class Client implements Runnable, Serializable {
                     case 2:
                         pw.println("2");
                         User user = Utilities.ClientMethods.login(br, pw, manager); //user hace log in
-                        System.out.print(user.toString());
-
+                        System.out.print(user);
                         if (user.getRole_id() == 1) { //es paciente
                             pw.println("patient"); //envia patient al client
                             Patient p = manager.selectPatientByUserId(user.getId()); //selecciona paciente asociado al usuario userId=Id de la clase user
-                            Utilities.Communication.sendPatient(pw, p, manager); //envía la información del paciente al cliente
+                            //Utilities.Communication.sendPatient(pw, p, manager); //envía la información del paciente al cliente
                             patientMenu(user, br, pw, manager); //menu paciente
                         } else if (user.getRole_id() == 2) { //es medico
                             pw.println("doctor"); //envía doctor al client

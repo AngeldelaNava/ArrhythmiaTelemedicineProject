@@ -69,8 +69,12 @@ public class JDBCManager implements DBManager {
     public void createTables() {
         try {
             Statement stmt = c.createStatement();
-
-            String sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
+            
+            String sql = "CREATE TABLE IF NOT EXISTS USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
+                    + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASCADE ON DELETE CASCADE)";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL,"
                     /*" gender TEXT NOT NULL," */ + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id)) ";
@@ -83,17 +87,22 @@ public class JDBCManager implements DBManager {
             sql = "CREATE TABLE IF NOT EXISTS ROLE " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " type TEXT NOT NULL)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXISTS USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
-                    + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASCADE ON DELETE CASCADE)";
-            stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS DOCTOR " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + " name TEXT NOT NULL," + " lastname TEXT NOT NULL," + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id))";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
-                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id))";
+                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id), " + " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE, " 
+                    + " FOREIGN KEY (doctor_id) REFERENCES DOCTOR(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXISTS USER_PATIENT_RELATION " +
+                "(user_id INTEGER REFERENCES USER(id), " +
+                " patient_id INTEGER REFERENCES PATIENT(id), " +
+                " PRIMARY KEY(user_id, patient_id), " +
+                " FOREIGN KEY (user_id) REFERENCES USER(id) ON UPDATE CASCADE ON DELETE CASCADE, " +
+                " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
+          stmt.executeUpdate(sql);
+
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,14 +124,6 @@ public class JDBCManager implements DBManager {
             prep.setString(3, p.getDob().toString());
             //prep.setString(4, p.getGender());
             prep.setString(4, p.getEmail());
-
-            //prep.setString(5, p.getEmail());
-            //prep.setString(6, p.getUsername());
-            //String password = p.getPassword();
-            //MessageDigest md = MessageDigest.getInstance("MD5");
-            //md.update(password.getBytes());
-            //byte[] hash = md.digest();
-            //prep.setBytes(6, hash)
             prep.executeUpdate();
             prep.close();
         } catch (SQLException ex) {

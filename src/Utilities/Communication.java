@@ -59,7 +59,7 @@ public class Communication {
 
     public static void sendPatient(PrintWriter pw, Patient patient, JDBCManager manager) {
         System.out.println(patient.toString()); //SE MANDA BIEN
-        manager.addPatient(patient);
+        //manager.addPatient(patient);
         pw.println(patient.toString());
 
     }
@@ -87,7 +87,9 @@ public class Communication {
         manager.addECG(signal, p);
     }
 
-    public static void sendUser(PrintWriter printWriter, User user) {
+    public static void sendUser(PrintWriter printWriter, User user, JDBCManager manager) {
+        System.out.println(user.toString()); //SE MANDA BIEN
+        manager.addUser(user);
         printWriter.println(user.toString());
     }
 
