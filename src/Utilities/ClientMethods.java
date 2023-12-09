@@ -103,7 +103,7 @@ public class ClientMethods {
                     byte[] hash = md.digest();
                     user.setPassword(hash);
                     //manager.addUser(user);
-                    Utilities.Communication.sendUser(pw, user, manager);
+                    //Utilities.Communication.sendUser(pw, user, manager);
                     
                     System.out.print("Introduce the date of birth [yyyy-mm-dd]: ");
                     birthdate = br.readLine();
@@ -115,11 +115,18 @@ public class ClientMethods {
                     System.out.print("Email: ");
                     email = br.readLine();
                     p.setEmail(email);
-
-                    p.setUserId(user.getId());
                     
-                    Utilities.Communication.sendPatient(pw, p, manager);
+                    Utilities.Communication.sendUser(pw, user, manager);
+                    manager.addUser(user);
+
+                    // 2. Agregar paciente y asignar el user_id después de obtener el ID del usuario
                     manager.addPatient(p);
+                    //p.setUserId(user.getId());
+                    Utilities.Communication.sendPatient(pw, p, manager);
+
+                    // 3. Crear el vínculo entre el usuario y el paciente
+                    //manager.createLinkUserPatient(user.getId(), p.getId());
+                    System.out.print(p);
                     break;
                 case 2:
                     name = readString("Name: ");
@@ -141,6 +148,7 @@ public class ClientMethods {
                     md1.update(password1.getBytes());
                     byte[] hash1 = md1.digest();
                     user.setPassword(hash1);
+                    manager.addUser(user);
 
                     d.setUserId(user.getId());
                     Utilities.Communication.sendDoctor(pw, d, manager);

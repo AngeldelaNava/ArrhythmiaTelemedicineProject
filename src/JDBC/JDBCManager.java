@@ -74,13 +74,17 @@ public class JDBCManager implements DBManager {
                     + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
                     + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT,"
+            sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL,"
-                    /*" gender TEXT NOT NULL," */ + " email TEXT NOT NULL,"
-                    + " user_id INTEGER REFERENCES USER(id)) ";
+                    /*" gender TEXT NOT NULL," */ + " email TEXT NOT NULL) ";
+                    //+ " user_id INTEGER REFERENCES USER(id) ON UPDATE CASCADE ON DELETE CASCADE) ";
+            stmt.executeUpdate(sql);
+            sql = "CREATE TABLE IF NOT EXISTS CONEXION (" +"userId INTEGER," + " patientId INTEGER,"
+                    + " FOREIGN KEY (userId) REFERENCES USER(id),"
+                    + "FOREIGN KEY (patientId) REFERENCES PATIENT(id)" + "PRIMARY KEY (userId, patientId)" + " )";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
-                    + " observation TEXT NOT NULL, " + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
+                    + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
                     + " ECGFile TEXT NOT NULL,"
                     + " patientId INTEGER REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
@@ -95,13 +99,13 @@ public class JDBCManager implements DBManager {
                     + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id), " + " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE, " 
                     + " FOREIGN KEY (doctor_id) REFERENCES DOCTOR(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXISTS USER_PATIENT_RELATION " +
+            /*sql = "CREATE TABLE IF NOT EXISTS USER_PATIENT_RELATION " +
                 "(user_id INTEGER REFERENCES USER(id), " +
                 " patient_id INTEGER REFERENCES PATIENT(id), " +
                 " PRIMARY KEY(user_id, patient_id), " +
                 " FOREIGN KEY (user_id) REFERENCES USER(id) ON UPDATE CASCADE ON DELETE CASCADE, " +
                 " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
-          stmt.executeUpdate(sql);
+          stmt.executeUpdate(sql);*/
 
             stmt.close();
         } catch (SQLException e) {
@@ -259,7 +263,7 @@ public class JDBCManager implements DBManager {
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM ECG WHERE patient_id = ? ";
+            String sql = "SELECT * FROM ECG WHERE patientId = ? ";
             PreparedStatement stmt = c.prepareStatement(sql);
             stmt.setInt(1, p.getId());
             ResultSet rs = stmt.executeQuery(sql);
@@ -745,7 +749,7 @@ public class JDBCManager implements DBManager {
 
     public void createLinkUserPatient(Integer userId, Integer patientId) {
         try {
-            String sql1 = "INSERT patient SET userId = ? WHERE id = ? ";
+            String sql1 = "UPDATE PATIENT SET user_id = ? WHERE id = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
             pStatement.setInt(1, userId);
             pStatement.setInt(2, patientId);

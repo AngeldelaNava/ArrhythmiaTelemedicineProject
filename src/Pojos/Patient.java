@@ -151,8 +151,8 @@ public class Patient {
 
     @Override
     public String toString() {
-        return "Patient{" + ", name=" + name + ", lastName=" + lastName
-                + ", date of birth=" + dob + ", email=" + email
+        return "Patient{" + "id=" + id + ", name=" + name + ", lastName=" + lastName
+                + ", date of birth=" + dob + ", email=" + email + ", user_id=" + userId
                 + "}";
     }
 }

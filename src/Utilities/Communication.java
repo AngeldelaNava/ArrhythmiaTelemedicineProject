@@ -89,7 +89,7 @@ public class Communication {
 
     public static void sendUser(PrintWriter printWriter, User user, JDBCManager manager) {
         System.out.println(user.toString()); //SE MANDA BIEN
-        manager.addUser(user);
+        //manager.addUser(user);
         printWriter.println(user.toString());
     }
 

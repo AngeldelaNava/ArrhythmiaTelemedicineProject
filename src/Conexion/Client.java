@@ -118,6 +118,7 @@ public class Client implements Runnable, Serializable {
                     case 1:
                         pw.println("1");
                         Utilities.ClientMethods.register(br, pw, manager);
+                        
                         break;
                     case 2:
                         pw.println("2");
