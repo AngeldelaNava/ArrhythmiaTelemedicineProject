@@ -10,6 +10,9 @@ package Conexion;
  */
 public class StopServer implements Runnable {
 
+    /**
+     *
+     */
     @Override
     public void run() {
         Server.ExitServer();

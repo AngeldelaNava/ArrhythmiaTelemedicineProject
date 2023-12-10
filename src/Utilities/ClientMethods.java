@@ -31,6 +31,13 @@ public class ClientMethods {
     private static JDBCManager patient;
     private static JDBCManager doctor;
     public static String trashcan;*/
+    /**
+     *
+     * @param br
+     * @param pw
+     * @param manager
+     * @throws SQLException
+     */
     public static void register(BufferedReader br, PrintWriter pw, JDBCManager manager) throws SQLException {
         try {
             Patient p = new Patient();
@@ -138,6 +145,13 @@ public class ClientMethods {
         }
     }
 
+    /**
+     *
+     * @param br
+     * @param pw
+     * @param manager
+     * @return User
+     */
     public static User login(BufferedReader br, PrintWriter pw, JDBCManager manager) {
         try {
             // Obtener la lista de usuarios desde la base de datos

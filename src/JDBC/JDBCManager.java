@@ -41,6 +41,9 @@ public class JDBCManager implements DBManager {
 
     private Connection c;
 
+    /**
+     *
+     */
     @Override
     public void connect() {
         try {
@@ -55,6 +58,9 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void disconnect() {
         try {
@@ -64,6 +70,9 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void createTables() {
         try {
@@ -112,11 +121,19 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @return Connection
+     */
     @Override
     public Connection getConnection() {
         return c;
     }
 
+    /**
+     *
+     * @param p
+     */
     @Override
     public void addPatient(Patient p) {
         try {
@@ -167,6 +184,11 @@ public class JDBCManager implements DBManager {
         }
         return p;
     }*/
+    /**
+     *
+     * @param username
+     * @return boolean
+     */
     @Override
     public boolean verifyUsername(String username) {
         String sql = "SELECT username FROM USER WHERE username = ?";
@@ -183,6 +205,12 @@ public class JDBCManager implements DBManager {
         return false;
     }
 
+    /**
+     *
+     * @param username
+     * @param passwordIntroduced
+     * @return boolean
+     */
     @Override
     public boolean verifyPassword(String username, String passwordIntroduced) {
         String sql = "SELECT password FROM USER WHERE username = ?";
@@ -205,6 +233,10 @@ public class JDBCManager implements DBManager {
         return false;
     }
 
+    /**
+     *
+     * @return List<Patient>
+     */
     @Override
     public List<Patient> listAllPatients() {
         List<Patient> patients = new ArrayList<>();
@@ -235,6 +267,10 @@ public class JDBCManager implements DBManager {
         return patients;
     }
 
+    /**
+     *
+     * @return List<User>
+     */
     @Override
     public List<User> listAllUsers() {
         List<User> users = new ArrayList<>();
@@ -261,6 +297,11 @@ public class JDBCManager implements DBManager {
         return users;
     }
 
+    /**
+     *
+     * @param p
+     * @return List<ECG>
+     */
     @Override
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
@@ -288,6 +329,12 @@ public class JDBCManager implements DBManager {
         return ecgs;
     }
 
+    /**
+     *
+     * @param username
+     * @param oldPassword
+     * @param newPassword
+     */
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
         if (!verifyPassword(username, oldPassword)) {
@@ -311,6 +358,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param ecg
+     * @param p
+     */
     @Override
     public void addECG(ECG ecg, Patient p) {
         String sq1 = "INSERT INTO ecg (date, ecg, patientId) VALUES (?, ?, ?)";
@@ -328,6 +380,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param name
+     * @return ECG
+     */
     @Override
     public ECG selectSignalByName(String name) {
         ECG s = new ECG();
@@ -383,6 +440,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return ECG
+     */
     @Override
     public ECG findECG(int id) {
         ECG ecg = null;
@@ -407,6 +469,11 @@ public class JDBCManager implements DBManager {
         return ecg;
     }
 
+    /**
+     *
+     * @param patient_id
+     * @return ArrayList<String>
+     */
     @Override
     public ArrayList<String> findECGByPatientId(int patient_id) {
         ArrayList<String> ecgs = new ArrayList<>();
@@ -427,6 +494,10 @@ public class JDBCManager implements DBManager {
         return ecgs;
     }
 
+    /**
+     *
+     * @param id
+     */
     @Override
     public void deleteECG(int id) {
         try {
@@ -440,6 +511,10 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     */
     @Override
     public void deletePatient(int id) {
         try {
@@ -453,6 +528,10 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     */
     @Override
     public void deleteUserByUserId(int id) {
         try {
@@ -466,6 +545,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param ecg
+     * @param id
+     */
     @Override
     public void setECG(ECG ecg, int id) {
         try {
@@ -487,6 +571,10 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param user
+     */
     @Override
     public void addUser(User user) {
         try {
@@ -502,6 +590,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return User
+     */
     @Override
     public User getUser(int id) {
         try {
@@ -525,6 +618,11 @@ public class JDBCManager implements DBManager {
         return null;
     }
 
+    /**
+     *
+     * @param username
+     * @return User
+     */
     @Override
     public User getUser(String username) {
         try {
@@ -548,6 +646,11 @@ public class JDBCManager implements DBManager {
         return null;
     }
 
+    /**
+     *
+     * @param username
+     * @param password
+     */
     @Override
     public void deleteUser(String username, String password) {
         try {
@@ -567,6 +670,10 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param doctor
+     */
     @Override
     public void addDoctor(Doctor doctor) {
         try {
@@ -583,6 +690,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return Doctor
+     */
     @Override
     public Doctor getDoctor(int id) {
         try {
@@ -606,6 +718,12 @@ public class JDBCManager implements DBManager {
         return null;
     }
 
+    /**
+     *
+     * @param name
+     * @param lastname
+     * @return Doctor
+     */
     @Override
     public Doctor getDoctor(String name, String lastname) {
         try {
@@ -629,6 +747,10 @@ public class JDBCManager implements DBManager {
         return null;
     }
 
+    /**
+     *
+     * @return ArrayList<Doctor>
+     */
     @Override
     public ArrayList<Doctor> listAllDoctors() {
         ArrayList<Doctor> doctors = new ArrayList<>();
@@ -653,6 +775,11 @@ public class JDBCManager implements DBManager {
         return doctors;
     }
 
+    /**
+     *
+     * @param patientId
+     * @return ArrayList<Doctor>
+     */
     @Override
     public ArrayList<Doctor> getDoctorsFromPatientId(int patientId) {
         ArrayList<Doctor> doctors = new ArrayList<>();
@@ -685,6 +812,10 @@ public class JDBCManager implements DBManager {
         return doctors;
     }
 
+    /**
+     *
+     * @param r
+     */
     @Override
     public void addRole(Role r) {
 
@@ -700,6 +831,11 @@ public class JDBCManager implements DBManager {
 
     }
 
+    /**
+     *
+     * @param roleid
+     * @return Role
+     */
     @Override
     public Role selectRoleById(Integer roleid) {
         try {
@@ -720,6 +856,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param username
+     * @return Role
+     */
     @Override
     public int getId(String username) {
         String sql1 = "SELECT * FROM USER WHERE username = ?";
@@ -774,6 +915,11 @@ public class JDBCManager implements DBManager {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }*/
+    /**
+     *
+     * @param patientId
+     * @param doctorId
+     */
     @Override
     public void createLinkDoctorPatient(int patientId, int doctorId) {
         try {
@@ -788,6 +934,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param userId
+     * @return Patient
+     */
     @Override
     public Patient selectPatientByUserId(Integer userId) {
         try {
@@ -818,6 +969,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param userId
+     * @return Doctor
+     */
     @Override
     public Doctor selectDoctorByUserId(Integer userId) {
         try {
@@ -842,6 +998,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param doctorId
+     * @return List<Patient>
+     */
     @Override
     public List<Patient> selectPatientsByDoctorId(int doctorId) {
         try {
@@ -863,6 +1024,11 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return Patient
+     */
     @Override
     public Patient selectPatient(Integer id) {
         try {

@@ -28,6 +28,11 @@ import javax.bluetooth.RemoteDevice;
  */
 public class Communication {
 
+    /**
+     *
+     * @return Socket
+     * @throws IOException
+     */
     public static Socket connectToServer() throws IOException {
         boolean connected = false;
         Socket socket = null;
@@ -51,12 +56,24 @@ public class Communication {
         return socket;
     }
 
+    /**
+     *
+     * @param pw
+     * @param doctor
+     * @param manager
+     */
     public static void sendDoctor(PrintWriter pw, Doctor doctor, JDBCManager manager) {
         //pw.println(doctor.toString());
         manager.addDoctor(doctor);
         System.out.println("doctor sended");
     }
 
+    /**
+     *
+     * @param pw
+     * @param patient
+     * @param manager
+     */
     public static void sendPatient(PrintWriter pw, Patient patient, JDBCManager manager) {
         //System.out.println(patient.toString()); //SE MANDA BIEN
         //manager.addPatient(patient);
@@ -64,6 +81,13 @@ public class Communication {
 
     }
 
+    /**
+     *
+     * @param patientList
+     * @param pw
+     * @param br
+     * @throws IOException
+     */
     public static void sendPatientList(List<Patient> patientList, PrintWriter pw, BufferedReader br) throws IOException {
         for (Patient patient : patientList) {
             System.out.println(patient.toString()); // Solo para verificar en la consola
@@ -73,6 +97,12 @@ public class Communication {
         }
     }
 
+    /**
+     *
+     * @param pw
+     * @param br
+     * @param ecgs
+     */
     public static void sendAllSignals(PrintWriter pw, BufferedReader br, List<ECG> ecgs) {
         for (ECG ecg : ecgs) {
             System.out.println(ecg.toString()); // Solo para verificar en la consola
@@ -82,11 +112,24 @@ public class Communication {
         }
     }
 
+    /**
+     *
+     * @param printWriter
+     * @param signal
+     * @param manager
+     * @param p
+     */
     public static void sendSignal(PrintWriter printWriter, ECG signal, JDBCManager manager, Patient p) {
         printWriter.println(signal.toString());
         manager.addECG(signal, p);
     }
 
+    /**
+     *
+     * @param printWriter
+     * @param user
+     * @param manager
+     */
     public static void sendUser(PrintWriter printWriter, User user, JDBCManager manager) {
         System.out.println(user.toString()); //SE MANDA BIEN
         //manager.addUser(user);
@@ -176,6 +219,11 @@ public class Communication {
         }
         return d;
     }*/
+    /**
+     *
+     * @param br
+     * @return ECG
+     */
     public static ECG receiveSignal(BufferedReader br) {
         ECG s = new ECG();
         try {
@@ -218,6 +266,11 @@ public class Communication {
         return s;
     }
 
+    /**
+     *
+     * @param br
+     * @return User
+     */
     public static User receiveUser(BufferedReader br) {
         User u = new User();
         try {
@@ -259,6 +312,12 @@ public class Communication {
         return u;
     }
 
+    /**
+     *
+     * @param p
+     * @param pw
+     * @param manager
+     */
     public static void recordSignal(Patient p, PrintWriter pw, JDBCManager manager) {
         Frame[] frame = null;
         BITalino bitalino = null;
@@ -339,6 +398,12 @@ public class Communication {
         }
     }
 
+    /**
+     *
+     * @param manager
+     * @param p
+     * @return List<ECG>
+     */
     public static List<ECG> ShowSignals(JDBCManager manager, Patient p) {
         //try {
         List<ECG> ecgs = manager.listAllECG(p);

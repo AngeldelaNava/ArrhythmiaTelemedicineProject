@@ -82,6 +82,9 @@ public class Client implements Runnable, Serializable {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void run() {
         manager.connect();
@@ -107,6 +110,14 @@ public class Client implements Runnable, Serializable {
         }
     }
 
+    /**
+     *
+     * @param inputStream
+     * @param outputStream
+     * @param br
+     * @param pw
+     * @param manager
+     */
     public static void menu(InputStream inputStream, OutputStream outputStream, BufferedReader br, PrintWriter pw, JDBCManager manager) {
         exit = false;
         try {
@@ -156,6 +167,13 @@ public class Client implements Runnable, Serializable {
         }
     }
 
+    /**
+     *
+     * @param u
+     * @param br
+     * @param pw
+     * @param manager
+     */
     public static void patientMenu(User u, BufferedReader br, PrintWriter pw, JDBCManager manager) {
         Patient p = manager.selectPatientByUserId(u.getId());
         BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
@@ -265,6 +283,13 @@ public class Client implements Runnable, Serializable {
         }
     }
 
+    /**
+     *
+     * @param u
+     * @param br
+     * @param pw
+     * @param manager
+     */
     public static void doctorMenu(User u, BufferedReader br, PrintWriter pw, JDBCManager manager) {
         Doctor d = manager.selectDoctorByUserId(u.getId());
         List<Patient> patients = manager.selectPatientsByDoctorId(d.getDoctorId());

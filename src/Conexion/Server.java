@@ -83,6 +83,9 @@ public class Server {
         }
     }
 
+    /**
+     *
+     */
     public static void ExitServer() {//para cerrar el server pulsar x
         Scanner sc = new Scanner(System.in);
         System.out.println("If you want to close the  server press 'x':");
@@ -92,6 +95,10 @@ public class Server {
         }
     }
 
+    /**
+     *
+     * @param severSocketClient
+     */
     public static void ReleaseResourcesServerClient(ServerSocket severSocketClient) {
         try {
             serverSocketClient.close();//libera recursos del servidor
@@ -101,14 +108,12 @@ public class Server {
         }
     }
 
-    public static void ReleaseClientThread(Socket socket) {
-        try {
-            socket.close();//libera recursos asociados con un hilo de cliente cerrando el socket del cliente
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
+    /**
+     *
+     * @param inputStream
+     * @param outputStream
+     * @param socket
+     */
     public static void releaseClientResources(InputStream inputStream, OutputStream outputStream, Socket socket) {
         //libera los recursos asociados con un cliente cerrando sus flujos de entrada y salida y el socket
         try {
