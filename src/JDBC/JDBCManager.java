@@ -69,20 +69,20 @@ public class JDBCManager implements DBManager {
     public void createTables() {
         try {
             Statement stmt = c.createStatement();
-            
+
             String sql = "CREATE TABLE IF NOT EXISTS USER " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "username TEXT NOT NULL," + " password BLOB NOT NULL,"
                     + " role_id INTEGER REFERENCES ROLE(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS PATIENT " + "(id INTEGER  PRIMARY KEY AUTOINCREMENT,"
                     + " name  TEXT   NOT NULL, " + " lastname  TEXT   NOT NULL," + " date_of_birth TEXT NOT NULL,"
-                    /*" gender TEXT NOT NULL," */ + " email TEXT NOT NULL) ";
-                    //+ " user_id INTEGER REFERENCES USER(id) ON UPDATE CASCADE ON DELETE CASCADE) ";
+                    + " email TEXT NOT NULL, "
+                    + " user_id INTEGER REFERENCES USER(id) ON UPDATE CASCADE ON DELETE CASCADE) ";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXISTS CONEXION (" +"userId INTEGER," + " patientId INTEGER,"
+            /*sql = "CREATE TABLE IF NOT EXISTS CONEXION (" + "userId INTEGER," + " patientId INTEGER,"
                     + " FOREIGN KEY (userId) REFERENCES USER(id),"
                     + "FOREIGN KEY (patientId) REFERENCES PATIENT(id)" + "PRIMARY KEY (userId, patientId)" + " )";
-            stmt.executeUpdate(sql);
+            stmt.executeUpdate(sql);*/
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
                     + " ECGFile TEXT NOT NULL,"
@@ -96,7 +96,7 @@ public class JDBCManager implements DBManager {
                     + " user_id INTEGER REFERENCES USER(id))";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
-                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id), " + " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE, " 
+                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id), " + " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE, "
                     + " FOREIGN KEY (doctor_id) REFERENCES DOCTOR(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
             /*sql = "CREATE TABLE IF NOT EXISTS USER_PATIENT_RELATION " +
@@ -121,13 +121,14 @@ public class JDBCManager implements DBManager {
     @Override
     public void addPatient(Patient p) {
         try {
-            String sql = "INSERT INTO PATIENT (name, lastname, date_of_birth, email) VALUES (?,?,?,?)";
+            String sql = "INSERT INTO PATIENT (name, lastname, date_of_birth, email, user_id) VALUES (?,?,?,?,?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, p.getName());
             prep.setString(2, p.getLastName());
             prep.setString(3, p.getDob().toString());
             //prep.setString(4, p.getGender());
             prep.setString(4, p.getEmail());
+            prep.setInt(5, p.getUserId());
             prep.executeUpdate();
             prep.close();
         } catch (SQLException ex) {
@@ -565,11 +566,12 @@ public class JDBCManager implements DBManager {
     @Override
     public void addDoctor(Doctor doctor) {
         try {
-            String sql = "INSERT INTO DOCTOR (name, lastname, email) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO DOCTOR (name, lastname, email, user_id) VALUES (?, ?, ?, ?)";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setString(1, doctor.getName());
             prep.setString(2, doctor.getLastName());
             prep.setString(3, doctor.getEmail());
+            prep.setInt(4, doctor.getUserId());
             prep.executeUpdate();
             prep.close();
         } catch (SQLException ex) {
