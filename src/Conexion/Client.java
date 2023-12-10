@@ -131,6 +131,8 @@ public class Client implements Runnable, Serializable {
                 System.out.println("@@                 0. Exit                                          @@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                System.out.println("\n~~~~~Done by:Angel de la Nava,Jaime Prats,Maria Rueda,Jaime Soler~~~~~");
+
                 int option = readInt("Select an option: ");
                 switch (option) {
                     case 1:
@@ -159,6 +161,7 @@ public class Client implements Runnable, Serializable {
                         //pw.println("0");
                         new ObjectOutputStream(outputStream).writeObject("Client closed");
                         Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
+                        System.out.println("~~~~~Done by:Angel de la Nava,Jaime Prats,Maria Rueda,Jaime Soler~~~~~");
                         System.exit(0);
                 }
             } while (true);

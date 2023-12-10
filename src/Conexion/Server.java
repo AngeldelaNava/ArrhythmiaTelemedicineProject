@@ -47,7 +47,7 @@ public class Server {
             ArrayList<ObjectInputStream> ins = new ArrayList<>();
             ins.add(new ObjectInputStream(socketClient.getInputStream()));
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
-                for (int i = 0; i < ins.size(); i++) {
+                /*for (int i = 0; i < ins.size(); i++) {
                     if (ins.get(i).readObject() == "Client closed") {
                         //clients.remove(1);
                         ins.remove(i);
@@ -58,7 +58,7 @@ public class Server {
                 if (ins.size() == 0) {
                     System.out.println("There are no clients connected. If you want to add more clients, do not close the server.");
                     ExitServer();
-                }
+                }*/
                 Socket s = serverSocketClient.accept();
                 System.out.println("Client connected");
                 sockets.add(s);
@@ -76,9 +76,9 @@ public class Server {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
 
-        } catch (ClassNotFoundException ex) {
+        }/* catch (ClassNotFoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
+        }*/ finally {
             ReleaseResourcesServerClient(serverSocketClient);
         }
     }
@@ -91,6 +91,7 @@ public class Server {
         System.out.println("If you want to close the  server press 'x':");
         String line = sc.nextLine();
         if (line.equals("x")) {
+            System.out.println("Closing Server . . . ");
             ReleaseResourcesServerClient(serverSocketClient);
         }
     }
