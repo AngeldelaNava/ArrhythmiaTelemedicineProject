@@ -31,9 +31,9 @@ public class Server {
         try {
             serverSocketClient = new ServerSocket(9000);
 
-            //StopServer SThread = new StopServer();
-            //Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
-            //stopServer.start();
+            StopServer SThread = new StopServer();
+            Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
+            stopServer.start();
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
                 Socket socketClient = serverSocketClient.accept();
                 System.out.println("Client connected!");
