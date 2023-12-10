@@ -58,7 +58,7 @@ public class Communication {
     }
 
     public static void sendPatient(PrintWriter pw, Patient patient, JDBCManager manager) {
-        System.out.println(patient.toString()); //SE MANDA BIEN
+        //System.out.println(patient.toString()); //SE MANDA BIEN
         //manager.addPatient(patient);
         pw.println(patient.toString());
 
@@ -217,7 +217,7 @@ public class Communication {
         System.out.println(s.toString());
         return s;
     }
-    
+
     public static User receiveUser(BufferedReader br) {
         User u = new User();
         try {

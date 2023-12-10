@@ -145,10 +145,10 @@ public class Client implements Runnable, Serializable {
 
                         break;
                     case 0:
-                        pw.println("0");
+                        //pw.println("0");
                         new ObjectOutputStream(outputStream).writeObject("Client closed");
                         Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
-                        break;
+                        System.exit(0);
                 }
             } while (true);
         } catch (Exception ex) {
@@ -162,7 +162,7 @@ public class Client implements Runnable, Serializable {
         int option = 0;
         do {
             try {
-                System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@                 0. Exit                                          @@");
                 System.out.println("@@                 1. Record new Signal                             @@");
@@ -271,7 +271,7 @@ public class Client implements Runnable, Serializable {
         BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
         int option = 0;
         do {
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println("@@                                                                  @@");
             System.out.println("@@                 0. Exit                                          @@");
             System.out.println("@@                 1. View data from one of my patients             @@");

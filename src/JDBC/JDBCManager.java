@@ -95,9 +95,10 @@ public class JDBCManager implements DBManager {
                     + " name TEXT NOT NULL," + " lastname TEXT NOT NULL," + " email TEXT NOT NULL,"
                     + " user_id INTEGER REFERENCES USER(id))";
             stmt.executeUpdate(sql);
-            sql = "CREATE TABLE IF NOT EXISTS PATIENTDOCTOR " + "(patient_id REFERENCES PATIENT(id),"
-                    + " doctor_id REFERENCES DOCTOR(id), PRIMARY KEY(patient_id, doctor_id), " + " FOREIGN KEY (patient_id) REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE, "
-                    + " FOREIGN KEY (doctor_id) REFERENCES DOCTOR(id) ON UPDATE CASCADE ON DELETE CASCADE)";
+            sql = "CREATE TABLE IF NOT EXISTS PATIENTDOCTOR " + "(patient_id INTEGER,"
+                    + " doctor_id INTEGER, FOREIGN KEY (patient_id) REFERENCES PATIENT(id),"
+                    + " FOREIGN KEY (doctor_id) REFERENCES DOCTOR(id),"
+                    + " PRIMARY KEY(patient_id, doctor_id))";
             stmt.executeUpdate(sql);
             /*sql = "CREATE TABLE IF NOT EXISTS USER_PATIENT_RELATION " +
                 "(user_id INTEGER REFERENCES USER(id), " +
