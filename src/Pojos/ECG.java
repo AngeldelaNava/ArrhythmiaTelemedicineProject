@@ -33,12 +33,11 @@ public class ECG {
         this.startDate = startDate;
         this.ecg = ecg;
     }
-    
-    public ECG(Integer id, String ecg, LocalDate startDate, String ECGFile) {
+
+    public ECG(Integer id, String ecg, LocalDate startDate) {
         this.id = id;
-        this.ecg=ecg;
+        this.ecg = ecg;
         this.startDate = startDate;
-        this.ECGFile=ECGFile;
     }
 
     public Integer getId() {
@@ -59,11 +58,13 @@ public class ECG {
     public String getEcg() {
         return ecg;
     }
+
     public String getECGFile() {
         return ECGFile;
     }
+
     public void setECGFile(String ECGFile) {
-        this.ECGFile=ECGFile;
+        this.ECGFile = ECGFile;
     }
 
     public LocalDate getStartDate() {

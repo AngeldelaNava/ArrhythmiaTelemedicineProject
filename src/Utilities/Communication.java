@@ -52,7 +52,7 @@ public class Communication {
     }
 
     public static void sendDoctor(PrintWriter pw, Doctor doctor, JDBCManager manager) {
-        pw.println(doctor.toString());
+        //pw.println(doctor.toString());
         manager.addDoctor(doctor);
         System.out.println("doctor sended");
     }
@@ -295,7 +295,7 @@ public class Communication {
             int block_size = 16;
 
             // Start loop to calculate time to send signal TODO
-            for (int j = 0; j < 750; j++) {
+            for (int j = 0; j < 80; j++) {
                 frame = bitalino.read(block_size);
 
                 for (Frame frame1 : frame) {
@@ -354,48 +354,4 @@ public class Communication {
         //return null;
     }
 
-    public static List<String> receivePatientList(BufferedReader bf) {
-        List<String> patientList = new ArrayList();
-        boolean stop = true;
-        try {
-            while (stop) {
-                String line = bf.readLine();
-                if (!line.equalsIgnoreCase("End of list")) {
-                    stop = true;
-                    System.out.println(line);
-                    patientList.add(line);
-                } else {
-                    stop = false;
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return patientList;
-    }
-
-    public static void exitFromServer(PrintWriter pw, BufferedReader br, InputStream inputStream, OutputStream outputStream, Socket socket) {
-        pw.close();
-        try {
-            socket.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            inputStream.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            outputStream.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            br.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Communication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
 }

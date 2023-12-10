@@ -139,7 +139,7 @@ public class Client implements Runnable, Serializable {
                         } else if (user.getRole_id() == 2) { //es medico
                             pw.println("doctor"); //envía doctor al client
                             Doctor d = manager.selectDoctorByUserId(user.getId()); //selecciona doctor asociado a usuario
-                            Utilities.Communication.sendDoctor(pw, d, manager); //envia la inforamcion del doctor al cliente
+                            //Utilities.Communication.sendDoctor(pw, d, manager); //envia la inforamcion del doctor al cliente
                             doctorMenu(user, br, pw, manager); //menu doctor
                         }
 
@@ -188,7 +188,7 @@ public class Client implements Runnable, Serializable {
                     manager.addECG(s, p1); //se añade la señal ECG al paciente*/
                         break;
                     case 2:
-                        List<ECG> signals = ShowSignals(manager, p);
+                        List<ECG> signals = manager.listAllECG(p);//ShowSignals(manager, p);
                         for (ECG signal : signals) {
                             System.out.println("ID: " + signal.getId() + ", Date: " + signal.getStartDate().toString());
                         }
@@ -287,6 +287,7 @@ public class Client implements Runnable, Serializable {
                     exit = true;
                     break;
                 case 1:
+                    patients = manager.selectPatientsByDoctorId(d.getDoctorId());
                     for (Patient patient : patients) {
                         System.out.println("ID: " + patient.getId() + ", Name: " + patient.getName() + " " + patient.getLastName());
                     }

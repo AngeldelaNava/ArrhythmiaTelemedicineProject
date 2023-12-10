@@ -9,7 +9,6 @@ import Interfaces.DBManager;
 import Pojos.Doctor;
 import Pojos.ECG;
 import Pojos.Patient;
-import static Pojos.Patient.formatDate;
 import Pojos.Role;
 import Pojos.User;
 import java.io.BufferedReader;
@@ -85,7 +84,6 @@ public class JDBCManager implements DBManager {
             stmt.executeUpdate(sql);*/
             sql = "CREATE TABLE IF NOT EXISTS ECG " + "(id     INTEGER  PRIMARY KEY AUTOINCREMENT, "
                     + " ecg TEXT NOT NULL, " + " date TEXT NOT NULL,"
-                    + " ECGFile TEXT NOT NULL,"
                     + " patientId INTEGER REFERENCES PATIENT(id) ON UPDATE CASCADE ON DELETE CASCADE)";
             stmt.executeUpdate(sql);
             sql = "CREATE TABLE IF NOT EXISTS ROLE " + "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -218,11 +216,11 @@ public class JDBCManager implements DBManager {
                 Integer id = rs.getInt("id");
                 String name = rs.getString("name");
                 String lastname = rs.getString("lastname");
-                String gender = rs.getString("gender");
+                //String gender = rs.getString("gender");
                 String email = rs.getString("email");
-                String fecha = rs.getString("date");
+                String fecha = rs.getString("date_of_birth");
                 int userId = rs.getInt("user_id");
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate date = LocalDate.parse(fecha, formatter);
                 Patient p = new Patient(id, name, date, lastname, email, userId);
                 patients.add(p);
@@ -237,6 +235,7 @@ public class JDBCManager implements DBManager {
         return patients;
     }
 
+    @Override
     public List<User> listAllUsers() {
         List<User> users = new ArrayList<>();
         try {
@@ -262,20 +261,21 @@ public class JDBCManager implements DBManager {
         return users;
     }
 
+    @Override
     public List<ECG> listAllECG(Patient p) {
         List<ECG> ecgs = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM ECG WHERE patientId = ? ";
+            String sql = "SELECT * FROM ECG WHERE patientId = ?";
             PreparedStatement stmt = c.prepareStatement(sql);
             stmt.setInt(1, p.getId());
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 Integer id = rs.getInt("id");
                 String ecg = rs.getString("ecg");
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate startDate = LocalDate.parse(rs.getString("date"), dtf);
-                String ECGFile = rs.getString("ECGFile"); /////////////////////////////////////////////////////////////////////////
-                ECG ecg1 = new ECG(id, ecg, startDate, ECGFile);
+                //String ECGFile = rs.getString("ECGFile"); /////////////////////////////////////////////////////////////////////////
+                ECG ecg1 = new ECG(id, ecg, startDate);
                 ecgs.add(ecg1);
             }
 
@@ -313,13 +313,14 @@ public class JDBCManager implements DBManager {
 
     @Override
     public void addECG(ECG ecg, Patient p) {
-        String sq1 = "INSERT INTO ecg (startDate, ECGFilename, id_patient) VALUES (?, ?, ?, ?)";
+        String sq1 = "INSERT INTO ecg (date, ecg, patientId) VALUES (?, ?, ?)";
         PreparedStatement template;
         try {
             template = c.prepareStatement(sq1);
-            template.setString(1, formatDate(ecg.getStartDate()));
-            template.setString(2, ecg.getECGFile());
-            template.setInt(4, p.getId());
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            template.setString(1, ecg.getStartDate().format(dtf));
+            template.setString(2, ecg.getEcg());
+            template.setInt(3, p.getId());
             template.executeUpdate();
             template.close();
         } catch (SQLException ex) {
@@ -439,6 +440,7 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    @Override
     public void deletePatient(int id) {
         try {
             String sql = "DELETE FROM Patient WHERE id = ?";
@@ -451,6 +453,7 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    @Override
     public void deleteUserByUserId(int id) {
         try {
             String sql = "DELETE FROM User WHERE id = ?";
@@ -682,6 +685,7 @@ public class JDBCManager implements DBManager {
         return doctors;
     }
 
+    @Override
     public void addRole(Role r) {
 
         String sq1 = "INSERT INTO role (type) VALUES (?)";
@@ -696,9 +700,10 @@ public class JDBCManager implements DBManager {
 
     }
 
+    @Override
     public Role selectRoleById(Integer roleid) {
         try {
-            String sql = "SELECT * FROM role WHERE id = ?";
+            String sql = "SELECT * FROM ROLE WHERE id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, roleid);
             ResultSet rs = p.executeQuery();
@@ -714,8 +719,8 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-    //@Override
 
+    @Override
     public int getId(String username) {
         String sql1 = "SELECT * FROM USER WHERE username = ?";
         int id = 0;
@@ -731,7 +736,7 @@ public class JDBCManager implements DBManager {
     }
 
     //@Override
-    public void createLinkUserRole(int roleId, int userId) {
+    /*public void createLinkUserRole(int roleId, int userId) {
         try {
             String sql1 = "UPDATE USER SET role_id = ? WHERE id = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
@@ -742,10 +747,9 @@ public class JDBCManager implements DBManager {
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
+    }*/
     //@Override
-    public void createLinkUserDoctor(Integer userId, Integer doctorId) {
+    /*public void createLinkUserDoctor(Integer userId, Integer doctorId) {
         try {
             String sql1 = "INSERT doctor SET userId = ? WHERE doctorId = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
@@ -756,9 +760,9 @@ public class JDBCManager implements DBManager {
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public void createLinkUserPatient(Integer userId, Integer patientId) {
+    }*/
+    //@Override
+    /*public void createLinkUserPatient(Integer userId, Integer patientId) {
         try {
             String sql1 = "UPDATE PATIENT SET user_id = ? WHERE id = ? ";
             PreparedStatement pStatement = c.prepareStatement(sql1);
@@ -769,8 +773,8 @@ public class JDBCManager implements DBManager {
         } catch (SQLException ex) {
             Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
+    }*/
+    @Override
     public void createLinkDoctorPatient(int patientId, int doctorId) {
         try {
             String sql = "INSERT INTO PATIENTDOCTOR (patient_id, doctor_id) VALUES (?,?)";
@@ -784,53 +788,7 @@ public class JDBCManager implements DBManager {
         }
     }
 
-    // @Override
-    public User checkPassword(String username, String password) {
-        User user = new User();
-        try {
-            String sql = "SELECT * FROM users WHERE userName = ? AND userPassword = ? ";
-            PreparedStatement preparedStatement = c.prepareStatement(sql);
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
-            ResultSet rs = preparedStatement.executeQuery();
-            if (rs.next()) {
-                user.setPassword(rs.getBytes("userPassword"));
-                user.setUsername(rs.getString("userName"));
-            }
-            preparedStatement.close();
-            rs.close();
-            return user;
-        } catch (SQLException ex) {
-            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
-            user = null;
-        }
-        return user;
-    }
-
-    public User selectUserByUserId(Integer userId) {
-        try {
-            //Date date;
-            String sql = "SELECT * FROM users WHERE userid = ?";
-            PreparedStatement p = c.prepareStatement(sql);
-            p.setInt(1, userId);
-            ResultSet rs = p.executeQuery();
-            User u = new User();
-            if (rs.next()) {
-                u.setPassword(rs.getBytes("userPassword"));
-                u.setRole_id(rs.getInt("userRoleid"));
-                u.setId(userId);
-                u.setUsername(rs.getString("userName"));
-            }
-            p.close();
-            rs.close();
-            return u;
-        } catch (SQLException ex) {
-            Logger.getLogger(JDBCManager.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
+    @Override
     public Patient selectPatientByUserId(Integer userId) {
         try {
             //Date date;
@@ -849,7 +807,6 @@ public class JDBCManager implements DBManager {
                 p1.setEmail(rs.getString("email"));
                 //p1.setGender(rs.getString("gender"));
                 p1.setId(rs.getInt("id"));
-                p1.setId(userId);
 
             }
             p.close();
@@ -860,22 +817,8 @@ public class JDBCManager implements DBManager {
             return null;
         }
     }
-    //@Override
 
-    public List<Doctor> selectAllDoctors() throws SQLException {
-        String sql = "SELECT * FROM DOCTOR";
-        PreparedStatement p = c.prepareStatement(sql);
-
-        ResultSet rs = p.executeQuery();
-        List<Doctor> dList = new ArrayList<Doctor>();
-        while (rs.next()) {
-            dList.add(new Doctor(rs.getInt("doctorId"), rs.getString("name"), rs.getString("lastName"), rs.getString("email")));
-        }
-        p.close();
-        rs.close();
-        return dList;
-    }
-
+    @Override
     public Doctor selectDoctorByUserId(Integer userId) {
         try {
             String sql = "SELECT * FROM DOCTOR WHERE user_id = ?";
@@ -899,6 +842,7 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    @Override
     public List<Patient> selectPatientsByDoctorId(int doctorId) {
         try {
             String sql = "SELECT * FROM PATIENTDOCTOR WHERE doctor_id = ?";
@@ -919,9 +863,9 @@ public class JDBCManager implements DBManager {
         }
     }
 
+    @Override
     public Patient selectPatient(Integer id) {
         try {
-            LocalDate date;
             String sql = "SELECT * FROM PATIENT WHERE id = ?";
             PreparedStatement p = c.prepareStatement(sql);
             p.setInt(1, id);
@@ -930,6 +874,7 @@ public class JDBCManager implements DBManager {
             if (rs.next()) {
                 patient = new Patient(rs.getString("name"), rs.getString("lastname"), LocalDate.parse(rs.getString("date_of_birth")),
                         rs.getString("email"), rs.getInt("user_id"));//rs.getString("gender"),
+                patient.setId(id);
             }
             p.close();
             rs.close();
@@ -940,55 +885,4 @@ public class JDBCManager implements DBManager {
         }
     }
 
-    public boolean editPatient(Integer id, String name, String surname, LocalDate dob,
-            String email, String gender) {
-
-        String sql;
-        PreparedStatement pStatement;
-        try {
-            if (name != null) {
-                sql = "UPDATE patient SET name = ? WHERE id = ?";
-                pStatement = c.prepareStatement(sql);
-                pStatement.setString(1, name);
-                pStatement.setInt(2, id);
-                pStatement.executeUpdate();
-            }
-            if (surname != null) {
-                sql = "UPDATE patient SET surname = ? WHERE medical_card_number = ?";
-                pStatement = c.prepareStatement(sql);
-                pStatement.setString(1, surname);
-                pStatement.setInt(2, id);
-                pStatement.executeUpdate();
-            }
-
-            if (dob != null) {
-                sql = "UPDATE patient SET dob = ? WHERE medical_card_number = ?";
-                pStatement = c.prepareStatement(sql);
-                pStatement.setString(1, formatDate(dob));
-                pStatement.setInt(2, id);
-                pStatement.executeUpdate();
-            }
-
-            if (email != null) {
-                sql = "UPDATE patient SET email = ? WHERE medical_card_number = ?";
-                pStatement = c.prepareStatement(sql);
-                pStatement.setString(1, email);
-                pStatement.setInt(2, id);
-                pStatement.executeUpdate();
-            }
-
-            if (gender != null) {
-                sql = "UPDATE patient SET gender = ? WHERE medical_card_number = ?";
-                pStatement = c.prepareStatement(sql);
-                pStatement.setString(1, gender);
-                pStatement.setInt(2, id);
-                pStatement.executeUpdate();
-            }
-
-            return true;
-        } catch (SQLException update_patient_error) {
-            update_patient_error.printStackTrace();
-            return false;
-        }
-    }
 }

@@ -7,7 +7,6 @@ package Utilities;
 import JDBC.JDBCManager;
 import Pojos.Doctor;
 import Pojos.Patient;
-import Pojos.Role;
 import Pojos.User;
 import static Utilities.UtilitiesRead.*;
 import java.io.BufferedReader;
@@ -17,7 +16,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,38 +31,6 @@ public class ClientMethods {
     private static JDBCManager patient;
     private static JDBCManager doctor;
     public static String trashcan;*/
-    public static void registerDoctor(BufferedReader br, PrintWriter pw, JDBCManager manager) {
-        Scanner sc = new Scanner(System.in);
-        Doctor d = new Doctor();
-        System.out.println("Please, input the doctor info:");
-        System.out.print("Name: ");
-        String name = sc.next();
-        d.setName(name);
-        System.out.print("Surname: ");
-        String surname = sc.next();
-        d.setLastName(surname);
-        System.out.print("Email: ");
-        String email = sc.next();
-        d.setEmail(email);
-        System.out.println("Let's proceed with the registration, the username and password:");
-        Utilities.Communication.sendDoctor(pw, d, manager);
-        User user = new User();
-        System.out.print("Role: \n");
-        System.out.print("1: Patient: \n");
-        System.out.print("2: Doctor: \n");
-        int role = Integer.parseInt(sc.next());
-        user.setRole_id(role);
-        System.out.print("Username: ");
-        String username = sc.next();
-        user.setUsername(username);
-        System.out.print("Password: ");
-        String password = sc.next();
-        byte[] passwordBytes = password.getBytes();
-        user.setPassword(passwordBytes);
-        manager.addDoctor(d);
-        manager.addUser(user);
-    }
-
     public static void register(BufferedReader br, PrintWriter pw, JDBCManager manager) throws SQLException {
         try {
             Patient p = new Patient();
@@ -236,24 +202,4 @@ public class ClientMethods {
         return null;
     }
      */
-    public static void firstlogin(JDBCManager manager) {
-        try {
-            if (!manager.verifyUsername("admin")) {
-                String username = "admin";
-                String password = "admin";
-                Role role = manager.selectRoleById(2);
-                User user = new User(username, password.getBytes(), 2);
-                manager.addUser(user);
-                user.setId(manager.getId(username));
-                manager.createLinkUserRole(role.getId(), user.getId());
-                Doctor doctor = new Doctor(2, "admin", "admin", "admin");
-                manager.addDoctor(doctor);
-                doctor.setDoctorId(manager.getId(doctor.getName()));
-                manager.createLinkUserDoctor(user.getId(), doctor.getDoctorId());
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 }
