@@ -17,9 +17,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import static java.util.Objects.hash;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,11 +76,11 @@ public class ClientMethods {
             String roleString = br.readLine();
             int role = Integer.parseInt(roleString);
             user.setRole_id(role);
-            
+
             String name, lastName, birthdate, email, userName;
             switch (role) {
                 case 1:
-                   
+
                     System.out.print("Name:");
                     name = br.readLine();
                     p.setName(name);
@@ -104,20 +101,21 @@ public class ClientMethods {
                     user.setPassword(hash);
                     //manager.addUser(user);
                     //Utilities.Communication.sendUser(pw, user, manager);
-                    
+
                     System.out.print("Introduce the date of birth [yyyy-mm-dd]: ");
                     birthdate = br.readLine();
-                   
+
                     LocalDate bdate = readDate(birthdate);
                     p.setDob(bdate);
 
-                    
                     System.out.print("Email: ");
                     email = br.readLine();
                     p.setEmail(email);
-                    
+
                     Utilities.Communication.sendUser(pw, user, manager);
                     manager.addUser(user);
+                    User u = manager.getUser(userName);
+                    p.setUserId(u.getId());
 
                     // 2. Agregar paciente y asignar el user_id después de obtener el ID del usuario
                     manager.addPatient(p);
@@ -149,8 +147,8 @@ public class ClientMethods {
                     byte[] hash1 = md1.digest();
                     user.setPassword(hash1);
                     manager.addUser(user);
-
-                    d.setUserId(user.getId());
+                    User u2 = manager.getUser(userName);
+                    d.setUserId(u2.getId());
                     Utilities.Communication.sendDoctor(pw, d, manager);
                 //manager.addDoctor(d);
             }
@@ -185,8 +183,8 @@ public class ClientMethods {
             System.out.print("password:");
             String password = br.readLine();
             byte[] bytesDefaultCharset = password.getBytes();
-            if(manager.verifyUsername(username) && manager.verifyPassword(username, password)){
-                
+            if (manager.verifyUsername(username) && manager.verifyPassword(username, password)) {
+
                 return manager.getUser(manager.getId(username));
             }
             // Verificar si el usuario y la contraseña coinciden

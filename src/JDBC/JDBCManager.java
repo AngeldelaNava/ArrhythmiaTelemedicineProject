@@ -653,18 +653,26 @@ public class JDBCManager implements DBManager {
     public ArrayList<Doctor> getDoctorsFromPatientId(int patientId) {
         ArrayList<Doctor> doctors = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM DOCTOR WHERE patient_id = ?";
+            String sql = "SELECT * FROM PATIENTDOCTOR WHERE patient_id = ?";
             PreparedStatement prep = c.prepareStatement(sql);
             prep.setInt(1, patientId);
             ResultSet rs = prep.executeQuery();
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                String lastName = rs.getString("lastname");
-                String email = rs.getString("email");
-                Doctor doctor = new Doctor(id, name, lastName, email, patientId);
-                doctors.add(doctor);
+                int doctorID = rs.getInt("doctor_id");
+                sql = "SELECT * FROM DOCTOR WHERE id = ?";
+                prep = c.prepareStatement(sql);
+                prep.setInt(1, doctorID);
+                ResultSet rs2 = prep.executeQuery();
+                if (rs2.next()) {
+                    String name = rs2.getString("name");
+                    String lastName = rs2.getString("lastname");
+                    String email = rs2.getString("email");
+                    Doctor doctor = new Doctor(doctorID, name, lastName, email, patientId);
+                    doctors.add(doctor);
+                }
+                rs2.close();
             }
+
             rs.close();
             prep.close();
         } catch (SQLException ex) {
@@ -834,9 +842,9 @@ public class JDBCManager implements DBManager {
                 p1.setName(rs.getString("name"));
                 p1.setLastName(rs.getString("lastname"));
                 //Se utiliza esto para convertir una Date en una LocalDate
-                java.sql.Date sqlDate = rs.getDate("date_of_birth");
-                LocalDate localDate = sqlDate.toLocalDate();
-                p1.setDob(localDate);
+                String sqlDate = rs.getString("date_of_birth");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate localDate = LocalDate.parse(sqlDate, formatter);
                 p1.setEmail(rs.getString("email"));
                 //p1.setGender(rs.getString("gender"));
                 p1.setId(rs.getInt("id"));

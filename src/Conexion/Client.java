@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -59,8 +60,13 @@ public class Client implements Runnable, Serializable {
             InputStream console = (System.in);
             Socket socket = new Socket("localhost", 9000);
             OutputStream outputStream = socket.getOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+            Client client = new Client(socket);
+            Thread thread = new Thread(client);
+            oos.writeObject(client);
+            thread.start();
 
-            while (true) {
+            /*while (true) {
 
                 byteRead = console.read();
 
@@ -70,7 +76,7 @@ public class Client implements Runnable, Serializable {
                     Server.releaseClientResources(console, outputStream, socket);
                     System.exit(0);
                 }
-            }
+            }*/
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -90,6 +96,7 @@ public class Client implements Runnable, Serializable {
 
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
+
             //BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter pw = new PrintWriter(outputStream, true);
@@ -105,7 +112,7 @@ public class Client implements Runnable, Serializable {
         try {
             do {
                 BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                 System.out.println("@@                                                                  @@");
                 System.out.println("@@                 Welcome.                                         @@");
                 System.out.println("@@                 1. Register                                      @@");
@@ -116,12 +123,12 @@ public class Client implements Runnable, Serializable {
                 int option = readInt("Select an option: ");
                 switch (option) {
                     case 1:
-                        pw.println("1");
+                        //pw.println("1");
                         Utilities.ClientMethods.register(br, pw, manager);
-                        
+
                         break;
                     case 2:
-                        pw.println("2");
+                        //pw.println("2");
                         User user = Utilities.ClientMethods.login(br, pw, manager); //user hace log in
                         System.out.print(user);
                         if (user.getRole_id() == 1) { //es paciente
@@ -139,6 +146,7 @@ public class Client implements Runnable, Serializable {
                         break;
                     case 0:
                         pw.println("0");
+                        new ObjectOutputStream(outputStream).writeObject("Client closed");
                         Server.releaseClientResources(inputStream, outputStream, socket); //terminar conexión con servidor
                         break;
                 }

@@ -4,8 +4,11 @@
  */
 package Conexion;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,22 +32,43 @@ public class Server {
 
     public static void main(String[] args) {
         try {
+            BufferedReader consola = new BufferedReader(new InputStreamReader(System.in));
             serverSocketClient = new ServerSocket(9000);
-
+            //ServerSocket serverSocket = new ServerSocket(9000);
             StopServer SThread = new StopServer();
             Thread stopServer = new Thread(SThread);//se inicia un hilo para detener al server
             stopServer.start();
+            Socket socketClient;
+            socketClient = serverSocketClient.accept();
+            System.out.println("Client connected!");
+            ArrayList<Socket> sockets = new ArrayList<>();
+            sockets.add(socketClient);
+            //client = new Client(socketClient);
+            ArrayList<ObjectInputStream> ins = new ArrayList<>();
+            ins.add(new ObjectInputStream(socketClient.getInputStream()));
             while (true) {//acepta conexiones de clientes dentro de un bucle infinito
-                Socket socketClient = serverSocketClient.accept();
-                System.out.println("Client connected!");
-                //client = new Client(socketClient);
-                //ObjectInputStream in = new ObjectInputStream(socketClient.getInputStream());
+                for (int i = 0; i < ins.size(); i++) {
+                    if (ins.get(i).readObject() == "Client closed") {
+                        //clients.remove(1);
+                        ins.remove(i);
+
+                    }
+                }
+
+                if (ins.size() == 0) {
+                    System.out.println("There are no clients connected. If you want to add more clients, do not close the server.");
+                    ExitServer();
+                }
+                Socket s = serverSocketClient.accept();
+                System.out.println("Client connected");
+                sockets.add(s);
+                ins.add(new ObjectInputStream(s.getInputStream()));
                 //BufferedReader br = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
                 //String option = br.readLine();  // Leer la opción del menú
                 //System.out.println("Option received from client: " + option);
                 //Thread clientThread = new Thread(client);
 
-                new Thread(new Client(socketClient)).start();
+                /*new Thread(new Client(socketClient)).start();*/
                 //clientThread.start();
                 //clientsThreadsList.add(clientThread);
                 //contador++;
@@ -52,6 +76,8 @@ public class Server {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
 
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             ReleaseResourcesServerClient(serverSocketClient);
         }

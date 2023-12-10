@@ -8,9 +8,10 @@ package Conexion;
  *
  * @author maria
  */
-public class StopServer implements Runnable{
+public class StopServer implements Runnable {
+
     @Override
     public void run() {
-         Server.ExitServer();
+        Server.ExitServer();
     }
 }
